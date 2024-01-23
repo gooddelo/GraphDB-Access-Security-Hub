@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "graphdb-access-security-hub"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+faststream = "^0.3.14"
+pyneo4j-ogm = "^0.4.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest-asyncio = "^0.23.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
