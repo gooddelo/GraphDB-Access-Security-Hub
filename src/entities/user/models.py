@@ -17,11 +17,11 @@ if typing.TYPE_CHECKING:
 
 
 class User(NodeModel):
-    id: uuid.UUID
+    user_id: uuid.UUID
     role: str
 
     resources: RelationshipProperty[Resource, Default] = RelationshipProperty(
-        target_model="Namespace",
+        target_model=Resource,
         relationship_model=Default,
         direction=RelationshipPropertyDirection.OUTGOING,
         cardinality=RelationshipPropertyCardinality.ZERO_OR_MORE,

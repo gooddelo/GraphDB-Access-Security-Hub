@@ -13,8 +13,9 @@ from src.relationships.default import Default
 
 
 class Namespace(NodeModel):
-    id = uuid.UUID
-    name = str
+    namespce_id: uuid.UUID
+    name: str
+
     users: RelationshipProperty[User, Default] = RelationshipProperty(
         target_model=User,
         relationship_model=Default,
