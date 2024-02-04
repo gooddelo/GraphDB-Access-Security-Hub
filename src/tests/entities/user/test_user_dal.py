@@ -8,7 +8,7 @@ from src.entities.user.dal import UserDAO
 
 @pytest.mark.asyncio
 class TestUserDAL:
-    async def test_create(self, neo4j_client):
+    async def test_create_no_relationship(self, neo4j_client):
         data = UserCreateDTO(
             user_id=uuid.uuid4(),
             role="admin",

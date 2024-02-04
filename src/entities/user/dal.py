@@ -10,7 +10,6 @@ from src.entities.user.dto import UserCreateDTO, UserReadDTO, UserUpdateDTO
 class UserDAO(DAO):
     node_type = User
 
-
     @classmethod
     async def create(cls, client: Pyneo4jClient, data: UserCreateDTO):
         new = cls.node_type(

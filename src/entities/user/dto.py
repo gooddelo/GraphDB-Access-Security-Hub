@@ -2,6 +2,7 @@ import uuid
 from typing import List
 
 from pydantic import Field
+
 from src.entities.base import DTO
 
 
