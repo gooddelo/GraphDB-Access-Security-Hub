@@ -1,6 +1,6 @@
 import uuid
 
-from pyneo4j_ogm import ( # type: ignore
+from pyneo4j_ogm import (  # type: ignore
     NodeModel,
     RelationshipProperty,
     RelationshipPropertyDirection,
@@ -13,7 +13,7 @@ from src.relationships.default import Default
 
 
 class Namespace(NodeModel):
-    namespce_id: uuid.UUID
+    namespace_id: uuid.UUID
     name: str
 
     users: RelationshipProperty[User, Default] = RelationshipProperty(

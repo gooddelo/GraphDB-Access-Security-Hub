@@ -1,4 +1,4 @@
-from pyneo4j_ogm import Pyneo4jClient # type: ignore
+from pyneo4j_ogm import Pyneo4jClient  # type: ignore
 
 from src.entities.base import DAO
 from src.entities.user.models import User
@@ -12,9 +12,5 @@ class UserDAO(DAO):
 
     @classmethod
     async def create(cls, client: Pyneo4jClient, data: UserCreateDTO):
-        new = cls.node_type(
-            **data.model_dump(include={"user_id", "role"})
-        )
+        new = cls.node_type(**data.model_dump(include={"user_id", "role"}))
         await new.create()
-
-        

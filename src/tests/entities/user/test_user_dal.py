@@ -2,6 +2,7 @@ import uuid
 
 import pytest
 
+from src.entities.user.models import User
 from src.entities.user.dto import UserCreateDTO
 from src.entities.user.dal import UserDAO
 
@@ -16,12 +17,14 @@ class TestUserDAL:
             belong_namespace_ids=[],
         )
         await UserDAO.create(neo4j_client, data)
+        users = await User.count()
+        assert users == 1
 
-    async def test_read(self, neo4j_client):
-        pass
+    # async def test_read(self, neo4j_client):
+    #     pass
 
-    async def test_update(self, neo4j_client):
-        pass
+    # async def test_update(self, neo4j_client):
+    #     pass
 
-    async def test_delete(self, neo4j_client):
-        pass
+    # async def test_delete(self, neo4j_client):
+    #     pass
