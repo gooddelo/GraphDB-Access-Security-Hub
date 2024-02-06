@@ -1,8 +1,10 @@
 import asyncio
-from typing import Iterator
+import uuid
+from typing import Iterator, List
 
 import pytest
 import pytest_asyncio
+from _pytest.fixtures import SubRequest
 from pyneo4j_ogm import Pyneo4jClient  # type: ignore
 from testcontainers.neo4j import Neo4jContainer  # type: ignore
 
@@ -10,8 +12,6 @@ from src.entities.user.models import User
 from src.entities.resource.models import Resource
 from src.entities.namespace.models import Namespace
 from src.relationships.default import Default
-
-url: str
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -29,10 +29,39 @@ async def neo4j_client():
         await client.register_models([User, Resource, Namespace, Default])
         yield client
         await client.close()
-    
 
 
 @pytest_asyncio.fixture(autouse=True)
 async def drop_nodes(neo4j_client: Pyneo4jClient):
-    yield
     await neo4j_client.drop_nodes()
+    yield
+
+
+@pytest_asyncio.fixture
+async def user_nodes(request: SubRequest):
+    print(f'{request.param = }')
+    user_ids = request.param
+    users = [await User(user_id=user_id, role="user").create() for user_id in user_ids]
+    return users
+
+
+@pytest_asyncio.fixture
+async def namespace_nodes(request: SubRequest):
+    print(f'{request.param = }')
+    namespace_ids = request.param
+    namespaces = [
+        await Namespace(namespace_id=namespace_id, name="company").create()
+        for namespace_id in namespace_ids
+    ]
+    return namespaces
+
+
+@pytest_asyncio.fixture
+async def resource_nodes(request: SubRequest):
+    print(f'{request.param = }')
+    resource_ids = request.param
+    resources = [
+        await Resource(resource_id=resource_id, type="resource").create()
+        for resource_id in resource_ids
+    ]
+    return resources
