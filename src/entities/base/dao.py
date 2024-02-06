@@ -9,12 +9,12 @@ class DAO(ABC):
 
     @classmethod
     @abstractmethod
-    async def create(cls, client, data):
+    async def create(cls, data):
         pass
 
     @classmethod
     @abstractmethod
-    async def read(cls, client, id):
+    async def read(cls, id):
         pass
 
     @classmethod
