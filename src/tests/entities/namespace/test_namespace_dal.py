@@ -52,9 +52,7 @@ class TestNamespaceDAL:
         assert len(connected_users) == len(user_nodes)
         assert len(connected_namespaces) == len(namespace_ids)
         assert len(connected_resources) == len(resource_ids)
-
-        await owner.delete()
-
+        
     # async def test_read(self, neo4j_client):
     #     pass
 
