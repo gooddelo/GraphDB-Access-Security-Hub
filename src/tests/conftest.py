@@ -10,7 +10,7 @@ from testcontainers.neo4j import Neo4jContainer  # type: ignore
 
 from src.entities.user.models import User
 from src.entities.resource.models import Resource
-from src.entities.namespace.models import Namespace
+from src.entities.scope.models import Scope
 from src.relationships.default import Default
 
 
@@ -26,7 +26,7 @@ async def neo4j_client():
         url = neo4j.get_connection_url()
         client = Pyneo4jClient()
         await client.connect(uri=url, auth=("neo4j", "password"), database="neo4j")
-        await client.register_models([User, Resource, Namespace, Default])
+        await client.register_models([User, Resource, Scope, Default])
         yield client
         await client.close()
 
@@ -45,13 +45,13 @@ async def user_nodes(request: SubRequest):
 
 
 @pytest_asyncio.fixture
-async def namespace_nodes(request: SubRequest):
-    namespace_ids = request.param
-    namespaces = [
-        await Namespace(namespace_id=namespace_id, name="company").create()
-        for namespace_id in namespace_ids
+async def scope_nodes(request: SubRequest):
+    scope_ids = request.param
+    scopes = [
+        await Scope(scope_id=scope_id, name="company").create()
+        for scope_id in scope_ids
     ]
-    return namespaces
+    return scopes
 
 
 @pytest_asyncio.fixture

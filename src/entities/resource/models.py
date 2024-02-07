@@ -12,7 +12,7 @@ from src.relationships.default import Default
 
 
 if typing.TYPE_CHECKING:
-    from src.entities.namespace.models import Namespace  # noqa
+    from src.entities.scope.models import Scope  # noqa
     from src.entities.user.models import User  # noqa
 
 
@@ -26,8 +26,8 @@ class Resource(NodeModel):
         cardinality=RelationshipPropertyCardinality.ZERO_OR_MORE,
         allow_multiple=False,
     )
-    namespaces: RelationshipProperty["Namespace", Default] = RelationshipProperty(
-        target_model="Namespace",
+    scopes: RelationshipProperty["Scope", Default] = RelationshipProperty(
+        target_model="Scope",
         relationship_model=Default,
         direction=RelationshipPropertyDirection.INCOMING,
         cardinality=RelationshipPropertyCardinality.ZERO_OR_MORE,

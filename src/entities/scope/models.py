@@ -12,8 +12,8 @@ from src.entities.user.models import User
 from src.relationships.default import Default
 
 
-class Namespace(NodeModel):
-    namespace_id: uuid.UUID
+class Scope(NodeModel):
+    scope_id: uuid.UUID
     name: str
 
     owner: RelationshipProperty[User, Default] = RelationshipProperty(
@@ -30,8 +30,8 @@ class Namespace(NodeModel):
         cardinality=RelationshipPropertyCardinality.ZERO_OR_MORE,
         allow_multiple=False,
     )
-    namespaces: RelationshipProperty["Namespace", Default] = RelationshipProperty(
-        target_model="Namespace",
+    scopes: RelationshipProperty["Scope", Default] = RelationshipProperty(
+        target_model="Scope",
         relationship_model=Default,
         direction=RelationshipPropertyDirection.OUTGOING,
         cardinality=RelationshipPropertyCardinality.ZERO_OR_MORE,

@@ -10,7 +10,7 @@ from src.entities.resource.dal import ResourceDAO
 @pytest.mark.asyncio
 class TestResourceDAL:
     @pytest.mark.parametrize(
-        "user_nodes,namespace_nodes",
+        "user_nodes,scope_nodes",
         (
             ([], []),
             ([], [uuid.uuid4()]),
@@ -22,13 +22,13 @@ class TestResourceDAL:
     async def test_create(
         self,
         user_nodes,
-        namespace_nodes,
+        scope_nodes,
     ):
         data = ResourceCreateDTO(
             resource_id=uuid.uuid4(),
             type="resource",
             user_ids=[user.user_id for user in user_nodes],
-            namespace_ids=[namespace.namespace_id for namespace in namespace_nodes],
+            scope_ids=[scope.scope_id for scope in scope_nodes],
         )
         await ResourceDAO.create(data)
         resources = await Resource.count()
@@ -36,9 +36,9 @@ class TestResourceDAL:
         assert resources == 1
 
         connected_users = await resource.users.find_connected_nodes()
-        connected_namespaces = await resource.namespaces.find_connected_nodes()
+        connected_scopes = await resource.scopes.find_connected_nodes()
         assert len(connected_users) == len(user_nodes)
-        assert len(connected_namespaces) == len(namespace_nodes)
+        assert len(connected_scopes) == len(scope_nodes)
 
     @pytest.mark.parametrize("resource_nodes", ([uuid.uuid4()],), indirect=True)
     async def test_read(self, resource_nodes):

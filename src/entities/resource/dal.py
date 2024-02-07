@@ -3,7 +3,7 @@ import uuid
 from src.entities.base import DAO
 from src.entities.user.models import User
 from src.entities.resource.models import Resource
-from src.entities.namespace.models import Namespace
+from src.entities.scope.models import Scope
 from src.entities.resource.dto import (
     ResourceCreateDTO,
     ResourceUpdateDTO,
@@ -21,10 +21,8 @@ class ResourceDAO(DAO):
         await new.create()
         for user_id in data.user_ids:
             await new.users.connect(await User.find_one({"user_id": str(user_id)}))
-        for namespace_id in data.namespace_ids:
-            await new.namespaces.connect(
-                await Namespace.find_one({"namespace_id": str(namespace_id)})
-            )
+        for scope_id in data.scope_ids:
+            await new.scopes.connect(await Scope.find_one({"scope_id": str(scope_id)}))
 
     @classmethod
     async def read(cls, id: uuid.UUID):
