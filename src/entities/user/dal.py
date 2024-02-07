@@ -52,3 +52,15 @@ class UserDAO(DAO):
             for scope in disconnect_belong_scopes:
                 await user.belong_scopes.disconnect(scope)
                 await user.own_scopes.disconnect(scope)
+        if new_data.new_resource_ids is not None:
+            old_resources = {*(await user.resources.find_connected_nodes())}
+            new_resources: Set[Resource] = {
+                await Resource.find_one({"resource_id": str(resource_id)})
+                for resource_id in new_data.new_resource_ids
+            }
+            connect_resources = new_resources - old_resources
+            disconnect_resources = old_resources - new_resources
+            for resource in connect_resources:
+                await user.resources.connect(resource)
+            for resource in disconnect_resources:
+                await user.resources.disconnect(resource)
