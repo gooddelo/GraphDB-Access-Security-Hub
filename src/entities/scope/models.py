@@ -44,3 +44,6 @@ class Scope(NodeModel):
         cardinality=RelationshipPropertyCardinality.ZERO_OR_MORE,
         allow_multiple=False,
     )
+
+    def __hash__(self):
+        return hash(f'{self.scope_id}.{self.name}')

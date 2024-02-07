@@ -1,4 +1,5 @@
 import uuid
+from typing import Set
 
 from src.entities.base import DAO
 from src.entities.user.models import User
@@ -34,5 +35,20 @@ class UserDAO(DAO):
     @classmethod
     async def update(cls, new_data: UserUpdateDTO):
         user = await cls.node_type.find_one({"user_id": str(new_data.user_id)})
-        user.role = new_data.new_role
-        await user.update()
+        if new_data.new_role is not None:
+            user.role = new_data.new_role
+            await user.update()
+        if new_data.new_belong_scope_ids is not None:
+            old_belong_scopes = {*(await user.belong_scopes.find_connected_nodes())}
+            new_belong_scopes: Set[Scope] = {
+                await Scope.find_one({"scope_id": str(scope_id)})
+                for scope_id in new_data.new_belong_scope_ids
+            }
+            connect_belong_scopes = new_belong_scopes - old_belong_scopes
+            disconnect_belong_scopes = old_belong_scopes - new_belong_scopes
+            for scope in connect_belong_scopes:
+                await user.belong_scopes.connect(scope)
+                await user.own_scopes.connect(scope)
+            for scope in disconnect_belong_scopes:
+                await user.belong_scopes.disconnect(scope)
+                await user.own_scopes.disconnect(scope)
