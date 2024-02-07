@@ -39,7 +39,6 @@ async def drop_nodes(neo4j_client: Pyneo4jClient):
 
 @pytest_asyncio.fixture
 async def user_nodes(request: SubRequest):
-    print(f'{request.param = }')
     user_ids = request.param
     users = [await User(user_id=user_id, role="user").create() for user_id in user_ids]
     return users
@@ -47,7 +46,6 @@ async def user_nodes(request: SubRequest):
 
 @pytest_asyncio.fixture
 async def namespace_nodes(request: SubRequest):
-    print(f'{request.param = }')
     namespace_ids = request.param
     namespaces = [
         await Namespace(namespace_id=namespace_id, name="company").create()
@@ -58,7 +56,6 @@ async def namespace_nodes(request: SubRequest):
 
 @pytest_asyncio.fixture
 async def resource_nodes(request: SubRequest):
-    print(f'{request.param = }')
     resource_ids = request.param
     resources = [
         await Resource(resource_id=resource_id, type="resource").create()

@@ -10,19 +10,19 @@ class DAO(ABC):
     @classmethod
     @abstractmethod
     async def create(cls, data):
-        pass
+        raise NotImplementedError()
 
     @classmethod
     @abstractmethod
     async def read(cls, id):
-        pass
+        raise NotImplementedError()
 
     @classmethod
     @abstractmethod
     async def update(cls):
-        pass
+        raise NotImplementedError()
 
     @classmethod
     @abstractmethod
     async def delete(cls):
-        pass
+        raise NotImplementedError()

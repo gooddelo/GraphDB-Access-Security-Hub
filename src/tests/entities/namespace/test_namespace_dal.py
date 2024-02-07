@@ -3,7 +3,7 @@ import uuid
 import pytest
 
 from src.entities.namespace.models import Namespace
-from src.entities.namespace.dto import NamespaceCreateDTO
+from src.entities.namespace.dto import NamespaceCreateDTO, NamespaceReadDTO
 from src.entities.namespace.dal import NamespaceDAO
 
 
@@ -18,7 +18,7 @@ class TestNamespaceDAL:
             ([uuid.uuid4()], [uuid.uuid4()], [uuid.uuid4()]),
             ([uuid.uuid4(), uuid.uuid4()], [uuid.uuid4()], [uuid.uuid4()]),
         ),
-        indirect=True
+        indirect=True,
     )
     async def test_create(
         self,
@@ -52,12 +52,18 @@ class TestNamespaceDAL:
         assert len(connected_users) == len(user_nodes)
         assert len(connected_namespaces) == len(namespace_ids)
         assert len(connected_resources) == len(resource_ids)
-        
-    # async def test_read(self, neo4j_client):
+
+    @pytest.mark.parametrize("namespace_nodes", ([uuid.uuid4()],), indirect=True)
+    async def test_read(self, namespace_nodes):
+        namespace_ids = [namespace.namespace_id for namespace in namespace_nodes]
+        for namespace_id in namespace_ids:
+            namespace_data = await NamespaceDAO.read(namespace_id)
+            assert isinstance(namespace_data, NamespaceReadDTO)
+            assert namespace_data.namespace_id == namespace_id
+            assert namespace_data.name == "company"
+
+    # async def test_update(self):
     #     pass
 
-    # async def test_update(self, neo4j_client):
-    #     pass
-
-    # async def test_delete(self, neo4j_client):
+    # async def test_delete(self):
     #     pass
