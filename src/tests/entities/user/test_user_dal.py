@@ -3,7 +3,7 @@ import uuid
 import pytest
 
 from src.entities.user.models import User
-from src.entities.user.dto import UserCreateDTO
+from src.entities.user.dto import UserCreateDTO, UserReadDTO
 from src.entities.user.dal import UserDAO
 
 
@@ -36,18 +36,26 @@ class TestUserDAL:
         users = await User.count()
         assert users == 1
         user = await User.find_one({"user_id": str(data.user_id)})
-        connected_belong_namespaces = await user.belong_namespaces.find_connected_nodes()
+        connected_belong_namespaces = (
+            await user.belong_namespaces.find_connected_nodes()
+        )
         connected_own_namespaces = await user.own_namespaces.find_connected_nodes()
         connected_resources = await user.resources.find_connected_nodes()
         assert len(connected_own_namespaces) == len(connected_belong_namespaces)
         assert len(connected_belong_namespaces) == len(namespace_nodes)
         assert len(connected_resources) == len(resource_nodes)
 
-    # async def test_read(self, neo4j_client):
+    @pytest.mark.parametrize("user_nodes", ([uuid.uuid4()],), indirect=True)
+    async def test_read(self, user_nodes):
+        user_ids = [user.user_id for user in user_nodes]
+        for user_id in user_ids:
+            user_data = await UserDAO.read(user_id)
+            assert isinstance(user_data, UserReadDTO)
+            assert user_data.user_id == user_id
+            assert user_data.role == "user"
+
+    # async def test_update(self):
     #     pass
 
-    # async def test_update(self, neo4j_client):
-    #     pass
-
-    # async def test_delete(self, neo4j_client):
+    # async def test_delete(self):
     #     pass
