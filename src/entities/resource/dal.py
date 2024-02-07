@@ -1,8 +1,14 @@
+import uuid
+
 from src.entities.base import DAO
 from src.entities.user.models import User
 from src.entities.resource.models import Resource
 from src.entities.namespace.models import Namespace
-from src.entities.resource.dto import ResourceCreateDTO, ResourceUpdateDTO, ResourceReadDTO
+from src.entities.resource.dto import (
+    ResourceCreateDTO,
+    ResourceUpdateDTO,
+    ResourceReadDTO,
+)
 
 
 class ResourceDAO(DAO):
@@ -19,3 +25,8 @@ class ResourceDAO(DAO):
             await new.namespaces.connect(
                 await Namespace.find_one({"namespace_id": str(namespace_id)})
             )
+
+    @classmethod
+    async def read(cls, id: uuid.UUID):
+        resource = await cls.node_type.find_one({"resource_id": str(id)})
+        return ResourceReadDTO.from_orm(resource)

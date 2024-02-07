@@ -3,7 +3,7 @@ import uuid
 import pytest
 
 from src.entities.resource.models import Resource
-from src.entities.resource.dto import ResourceCreateDTO
+from src.entities.resource.dto import ResourceCreateDTO, ResourceReadDTO
 from src.entities.resource.dal import ResourceDAO
 
 
@@ -40,8 +40,14 @@ class TestResourceDAL:
         assert len(connected_users) == len(user_nodes)
         assert len(connected_namespaces) == len(namespace_nodes)
 
-    # async def test_read(self, neo4j_client):
-    #     pass
+    @pytest.mark.parametrize("resource_nodes", ([uuid.uuid4()],), indirect=True)
+    async def test_read(self, resource_nodes):
+        resource_ids = [resource.resource_id for resource in resource_nodes]
+        for resource_id in resource_ids:
+            resource_data = await ResourceDAO.read(resource_id)
+            assert isinstance(resource_data, ResourceReadDTO)
+            assert resource_data.resource_id == resource_id
+            assert resource_data.type == "resource"
 
     # async def test_update(self, neo4j_client):
     #     pass
