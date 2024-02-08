@@ -80,8 +80,8 @@ class TestUserDAL:
             new_belong_scope_ids=[scope.scope_id for scope in new_belong_scopes],
         )
         await UserDAO.update(new_data)
-        modified_belong_scopes = await user.belong_scopes.find_connected_nodes()
-        assert set(modified_belong_scopes) == set(new_belong_scopes)
+        connected_belong_scopes = await user.belong_scopes.find_connected_nodes()
+        assert set(connected_belong_scopes) == set(new_belong_scopes)
 
     @pytest.mark.parametrize(
         "user_nodes,resource_nodes",
@@ -102,8 +102,8 @@ class TestUserDAL:
             new_resource_ids=[resource.resource_id for resource in new_resources],
         )
         await UserDAO.update(new_data)
-        modified_resources = await user.resources.find_connected_nodes()
-        assert set(modified_resources) == set(new_resources)
+        connected_resources = await user.resources.find_connected_nodes()
+        assert set(connected_resources) == set(new_resources)
 
         
     # async def test_delete(self):
