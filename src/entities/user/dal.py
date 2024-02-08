@@ -64,3 +64,8 @@ class UserDAO(DAO):
                 await user.resources.connect(resource)
             for resource in disconnect_resources:
                 await user.resources.disconnect(resource)
+
+    @classmethod
+    async def delete(cls, id: uuid.UUID):
+        user = await cls.node_type.find_one({"user_id": str(id)})
+        await user.delete()

@@ -105,6 +105,9 @@ class TestUserDAL:
         connected_resources = await user.resources.find_connected_nodes()
         assert set(connected_resources) == set(new_resources)
 
-        
-    # async def test_delete(self):
-    #     pass
+    @pytest.mark.parametrize("user_nodes", ([uuid.uuid4()],), indirect=True)
+    async def test_delete(self, user_nodes):
+        user = user_nodes[0]
+        await UserDAO.delete(user.user_id)
+        assert await User.count() == 0
+
