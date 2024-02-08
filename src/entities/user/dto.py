@@ -20,6 +20,6 @@ class UserUpdateDTO(DTO):
     new_belong_scope_ids: List[uuid.UUID] | None = None
 
 
-class UserReadDTO(DTO):
+class UserPropertiesDTO(DTO):
     user_id: uuid.UUID
     role: str

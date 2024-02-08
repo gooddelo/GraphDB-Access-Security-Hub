@@ -22,6 +22,6 @@ class ScopeUpdateDTO(DTO):
     new_resource_ids: List[uuid.UUID] | None = None
 
 
-class ScopeReadDTO(DTO):
+class ScopePropertiesDTO(DTO):
     scope_id: uuid.UUID
     name: str

@@ -18,6 +18,6 @@ class ResourceUpdateDTO(DTO):
     new_scope_ids: List[uuid.UUID] | None = None
 
 
-class ResourceReadDTO(DTO):
+class ResourcePropertiesDTO(DTO):
     resource_id: uuid.UUID
     type: str

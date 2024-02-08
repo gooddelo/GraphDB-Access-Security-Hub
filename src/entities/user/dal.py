@@ -5,7 +5,9 @@ from src.entities.base import DAO
 from src.entities.user.models import User
 from src.entities.scope.models import Scope
 from src.entities.resource.models import Resource
-from src.entities.user.dto import UserCreateDTO, UserReadDTO, UserUpdateDTO
+from src.entities.user.dto import UserCreateDTO, UserPropertiesDTO, UserUpdateDTO
+from src.entities.scope.dto import ScopePropertiesDTO
+from src.entities.resource.dto import ResourcePropertiesDTO
 
 
 class UserDAO(DAO):
@@ -30,7 +32,7 @@ class UserDAO(DAO):
     @classmethod
     async def read(cls, id: uuid.UUID):
         user = await cls.node_type.find_one({"user_id": str(id)})
-        return UserReadDTO.from_orm(user)
+        return UserPropertiesDTO.from_orm(user)
 
     @classmethod
     async def update(cls, new_data: UserUpdateDTO):
@@ -69,3 +71,29 @@ class UserDAO(DAO):
     async def delete(cls, id: uuid.UUID):
         user = await cls.node_type.find_one({"user_id": str(id)})
         await user.delete()
+
+    @classmethod
+    async def is_reachable(
+        cls,
+        user_data: UserPropertiesDTO,
+        object_data: UserPropertiesDTO | ScopePropertiesDTO | ResourcePropertiesDTO,
+    ):
+        user = await cls.node_type.find_one(user_data.model_dump(mode='json'))
+        object_class = None
+        if isinstance(object_data, UserPropertiesDTO):
+            object_class = User
+        elif isinstance(object_data, ScopePropertiesDTO):
+            object_class = Scope
+        elif isinstance(object_data, ResourcePropertiesDTO):
+            object_class = Resource
+        object_ = await object_class.find_one(
+            object_data.model_dump(mode='json')
+        )
+        reachable_nodes = await user.find_connected_nodes(
+            {
+                "$node": {
+                    "$labels": object_._settings.labels,
+                }
+            }
+        )
+        return object_ in reachable_nodes

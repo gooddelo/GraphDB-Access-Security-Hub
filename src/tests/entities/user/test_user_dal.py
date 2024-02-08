@@ -3,8 +3,9 @@ import uuid
 import pytest
 
 from src.entities.user.models import User
-from src.entities.user.dto import UserCreateDTO, UserReadDTO, UserUpdateDTO
+from src.entities.user.dto import UserCreateDTO, UserPropertiesDTO, UserUpdateDTO
 from src.entities.user.dal import UserDAO
+from src.entities.resource.dto import ResourcePropertiesDTO
 
 
 @pytest.mark.asyncio
@@ -48,7 +49,7 @@ class TestUserDAL:
         user_ids = [user.user_id for user in user_nodes]
         for user_id in user_ids:
             user_data = await UserDAO.read(user_id)
-            assert isinstance(user_data, UserReadDTO)
+            assert isinstance(user_data, UserPropertiesDTO)
             assert user_data.user_id == user_id
             assert user_data.role == "user"
 
@@ -111,3 +112,35 @@ class TestUserDAL:
         await UserDAO.delete(user.user_id)
         assert await User.count() == 0
 
+    @pytest.mark.parametrize(
+        "user_nodes,scope_nodes,resource_nodes",
+        (
+            (
+                [uuid.uuid4(), uuid.uuid4()],
+                [uuid.uuid4(), uuid.uuid4()],
+                [uuid.uuid4(), uuid.uuid4()],
+            ),
+        ),
+        indirect=True,
+    )
+    async def test_is_reachable_with_multihop(self, user_nodes, scope_nodes, resource_nodes):
+        owner = user_nodes[0]
+        employee = user_nodes[1]
+        company = scope_nodes[0]
+        selling_point = scope_nodes[1]
+        company_resource = resource_nodes[0]
+        selling_point_resource = resource_nodes[1]
+        await company.owner.connect(owner)
+        await company.scopes.connect(selling_point)
+        await company.resources.connect(company_resource)
+        await selling_point.resources.connect(selling_point_resource)
+        await selling_point.users.connect(employee)
+        await employee.own_scopes.connect(selling_point)
+        user_data = UserPropertiesDTO(user_id=owner.user_id, role=employee.role)
+        resource_data = ResourcePropertiesDTO(
+            resource_id=company_resource.resource_id, type=company_resource.type
+        )
+        assert await UserDAO.is_reachable(user_data, resource_data)
+
+        # TODO: test negative cases 
+        # TODO: test with max depth

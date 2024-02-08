@@ -7,7 +7,7 @@ from src.entities.scope.models import Scope
 from src.entities.resource.models import Resource
 from src.entities.resource.dto import (
     ResourceCreateDTO,
-    ResourceReadDTO,
+    ResourcePropertiesDTO,
     ResourceUpdateDTO,
 )
 from src.entities.resource.dal import ResourceDAO
@@ -51,7 +51,7 @@ class TestResourceDAL:
         resource_ids = [resource.resource_id for resource in resource_nodes]
         for resource_id in resource_ids:
             resource_data = await ResourceDAO.read(resource_id)
-            assert isinstance(resource_data, ResourceReadDTO)
+            assert isinstance(resource_data, ResourcePropertiesDTO)
             assert resource_data.resource_id == resource_id
             assert resource_data.type == "resource"
 

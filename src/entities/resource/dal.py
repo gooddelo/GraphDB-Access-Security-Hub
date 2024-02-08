@@ -7,7 +7,7 @@ from src.entities.scope.models import Scope
 from src.entities.resource.dto import (
     ResourceCreateDTO,
     ResourceUpdateDTO,
-    ResourceReadDTO,
+    ResourcePropertiesDTO,
 )
 
 
@@ -27,7 +27,7 @@ class ResourceDAO(DAO):
     @classmethod
     async def read(cls, id: uuid.UUID):
         resource = await cls.node_type.find_one({"resource_id": str(id)})
-        return ResourceReadDTO.from_orm(resource)
+        return ResourcePropertiesDTO.from_orm(resource)
 
     @classmethod
     async def update(cls, new_data: ResourceUpdateDTO):
@@ -61,7 +61,7 @@ class ResourceDAO(DAO):
                 await resource.scopes.connect(scope)
             for scope in disconnect_scopes:
                 await resource.scopes.disconnect(scope)
-    
+
     @classmethod
     async def delete(cls, id: uuid.UUID):
         resource = await cls.node_type.find_one({"resource_id": str(id)})

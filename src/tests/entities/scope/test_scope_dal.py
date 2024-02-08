@@ -3,7 +3,7 @@ import uuid
 import pytest
 
 from src.entities.scope.models import Scope
-from src.entities.scope.dto import ScopeCreateDTO, ScopeReadDTO, ScopeUpdateDTO
+from src.entities.scope.dto import ScopeCreateDTO, ScopePropertiesDTO, ScopeUpdateDTO
 from src.entities.scope.dal import ScopeDAO
 
 
@@ -58,7 +58,7 @@ class TestScopeDAL:
         scope_ids = [scope.scope_id for scope in scope_nodes]
         for scope_id in scope_ids:
             scope_data = await ScopeDAO.read(scope_id)
-            assert isinstance(scope_data, ScopeReadDTO)
+            assert isinstance(scope_data, ScopePropertiesDTO)
             assert scope_data.scope_id == scope_id
             assert scope_data.name == "company"
 

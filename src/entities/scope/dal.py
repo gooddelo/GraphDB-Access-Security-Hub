@@ -5,7 +5,7 @@ from src.entities.user.models import User
 from src.entities.resource.models import Resource
 from src.entities.scope.dto import (
     ScopeCreateDTO,
-    ScopeReadDTO,
+    ScopePropertiesDTO,
     ScopeUpdateDTO,
 )
 from src.entities.scope.models import Scope
@@ -32,7 +32,7 @@ class ScopeDAO(DAO):
     @classmethod
     async def read(cls, id: uuid.UUID):
         scope = await cls.node_type.find_one({"scope_id": str(id)})
-        return ScopeReadDTO.from_orm(scope)
+        return ScopePropertiesDTO.from_orm(scope)
 
     @classmethod
     async def update(cls, new_data: ScopeUpdateDTO):
@@ -72,7 +72,10 @@ class ScopeDAO(DAO):
                 await scope.resources.disconnect(resource)
         if new_data.new_scope_ids is not None:
             old_scopes = {*(await scope.scopes.find_connected_nodes())}
-            new_scopes = {await Scope.find_one({"scope_id": str(scope_id)}) for scope_id in new_data.new_scope_ids}
+            new_scopes = {
+                await Scope.find_one({"scope_id": str(scope_id)})
+                for scope_id in new_data.new_scope_ids
+            }
             connect_scopes = new_scopes - old_scopes
             disconnect_scopes = old_scopes - new_scopes
             for scope_ in connect_scopes:
