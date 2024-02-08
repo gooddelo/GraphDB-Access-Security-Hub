@@ -2,6 +2,8 @@ import uuid
 
 import pytest
 
+from src.entities.user.models import User
+from src.entities.scope.models import Scope
 from src.entities.resource.models import Resource
 from src.entities.resource.dto import (
     ResourceCreateDTO,
@@ -85,7 +87,7 @@ class TestResourceDAL:
         await ResourceDAO.update(new_data)
         connected_users = await resource.users.find_connected_nodes()
         assert set(connected_users) == set(new_users)
-    
+
     @pytest.mark.parametrize(
         "resource_nodes,scope_nodes",
         (
@@ -108,5 +110,22 @@ class TestResourceDAL:
         connected_scopes = await resource.scopes.find_connected_nodes()
         assert set(connected_scopes) == set(new_scopes)
 
-    # async def test_delete(self, neo4j_client):
-    #     pass
+    @pytest.mark.parametrize(
+        "resource_nodes,user_nodes,scope_nodes",
+        (([uuid.uuid4()], [uuid.uuid4()], [uuid.uuid4()]),),
+        indirect=True,
+    )
+    async def test_delete(self, resource_nodes, user_nodes, scope_nodes):
+        resource = resource_nodes[0]
+        user = user_nodes[0]
+        scope = scope_nodes[0]
+        await resource.users.connect(user)
+        await resource.scopes.connect(scope)
+        await ResourceDAO.delete(resource.resource_id)
+        assert (
+            await Resource.find_one({"resource_id": str(resource.resource_id)}) is None
+        )
+        assert await User.find_one({"user_id": str(user.user_id)}) is not None
+        assert await Scope.find_one({"scope_id": str(scope.scope_id)}) is not None
+        assert len(await user.resources.find_connected_nodes()) == 0
+        assert len(await scope.resources.find_connected_nodes()) == 0

@@ -39,7 +39,10 @@ class ResourceDAO(DAO):
             await resource.update()
         if new_data.new_user_ids is not None:
             old_users = set(await resource.users.find_connected_nodes())
-            new_users = {await User.find_one({"user_id": str(user_id)}) for user_id in new_data.new_user_ids}
+            new_users = {
+                await User.find_one({"user_id": str(user_id)})
+                for user_id in new_data.new_user_ids
+            }
             connect_users = new_users - old_users
             disconnect_users = old_users - new_users
             for user in connect_users:
@@ -48,12 +51,18 @@ class ResourceDAO(DAO):
                 await resource.users.disconnect(user)
         if new_data.new_scope_ids is not None:
             old_scopes = set(await resource.scopes.find_connected_nodes())
-            new_scopes = {await Scope.find_one({"scope_id": str(scope_id)}) for scope_id in new_data.new_scope_ids}
+            new_scopes = {
+                await Scope.find_one({"scope_id": str(scope_id)})
+                for scope_id in new_data.new_scope_ids
+            }
             connect_scopes = new_scopes - old_scopes
             disconnect_scopes = old_scopes - new_scopes
             for scope in connect_scopes:
                 await resource.scopes.connect(scope)
             for scope in disconnect_scopes:
                 await resource.scopes.disconnect(scope)
- 
-
+    
+    @classmethod
+    async def delete(cls, id: uuid.UUID):
+        resource = await cls.node_type.find_one({"resource_id": str(id)})
+        await resource.delete()
