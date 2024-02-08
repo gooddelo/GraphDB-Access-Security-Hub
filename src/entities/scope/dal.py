@@ -79,5 +79,8 @@ class ScopeDAO(DAO):
                 await scope.scopes.connect(scope_)
             for scope_ in disconnect_scopes:
                 await scope.scopes.disconnect(scope_)
-            
 
+    @classmethod
+    async def delete(self, id: uuid.UUID):
+        scope = await self.node_type.find_one({"scope_id": str(id)})
+        await scope.delete()

@@ -151,5 +151,8 @@ class TestScopeDAL:
         connected_scopes = await main_scope.scopes.find_connected_nodes()
         assert set(connected_scopes) == set(new_scopes)
 
-    # async def test_delete(self):
-    #     pass
+    @pytest.mark.parametrize("scope_nodes", ([uuid.uuid4()],), indirect=True)
+    async def test_delete(self, scope_nodes):
+        scope = scope_nodes[0]
+        await ScopeDAO.delete(scope.scope_id)
+        assert await Scope.find_one({"scope_id": str(scope.scope_id)}) is None
