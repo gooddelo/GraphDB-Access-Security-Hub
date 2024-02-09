@@ -5,7 +5,7 @@ import pytest
 from src.entities.user.models import User
 from src.entities.user.dto import UserCreateDTO, UserPropertiesDTO, UserUpdateDTO
 from src.entities.user.dal import UserDAO
-from src.entities.resource.dto import ResourcePropertiesDTO
+from src.entities.resource.dto import ResourcePropertiesDTO, ResourceCreateDTO
 
 
 @pytest.mark.asyncio
@@ -123,7 +123,9 @@ class TestUserDAL:
         ),
         indirect=True,
     )
-    async def test_is_reachable_with_multihop(self, user_nodes, scope_nodes, resource_nodes):
+    async def test_is_reachable_with_multihop(
+        self, user_nodes, scope_nodes, resource_nodes
+    ):
         owner = user_nodes[0]
         employee = user_nodes[1]
         company = scope_nodes[0]
@@ -136,11 +138,152 @@ class TestUserDAL:
         await selling_point.resources.connect(selling_point_resource)
         await selling_point.users.connect(employee)
         await employee.own_scopes.connect(selling_point)
-        user_data = UserPropertiesDTO(user_id=owner.user_id, role=employee.role)
+        user_data = UserPropertiesDTO(user_id=owner.user_id, role=owner.role)
         resource_data = ResourcePropertiesDTO(
             resource_id=company_resource.resource_id, type=company_resource.type
         )
         assert await UserDAO.is_reachable(user_data, resource_data)
 
-        # TODO: test negative cases 
-        # TODO: test with max depth
+    @pytest.mark.parametrize(
+        "user_nodes,scope_nodes,resource_nodes",
+        (
+            (
+                [uuid.uuid4(), uuid.uuid4()],
+                [uuid.uuid4(), uuid.uuid4()],
+                [uuid.uuid4(), uuid.uuid4(), uuid.uuid4()],
+            ),
+        ),
+        indirect=True,
+    )
+    async def test_is_reachable_with_depth(
+        self, user_nodes, scope_nodes, resource_nodes
+    ):
+        owner = user_nodes[0]
+        employee = user_nodes[1]
+        company = scope_nodes[0]
+        selling_point = scope_nodes[1]
+        company_resource = resource_nodes[0]
+        selling_point_resource = resource_nodes[1]
+        personal_resource = resource_nodes[2]
+        await company.owner.connect(owner)
+        await company.scopes.connect(selling_point)
+        await company.resources.connect(company_resource)
+        await selling_point.resources.connect(selling_point_resource)
+        await selling_point.users.connect(employee)
+        await employee.own_scopes.connect(selling_point)
+        await employee.resources.connect(personal_resource)
+        user_data = UserPropertiesDTO(user_id=owner.user_id, role=owner.role)
+        resource_data = ResourcePropertiesDTO(
+            resource_id=personal_resource.resource_id, type=personal_resource.type
+        )
+        assert await UserDAO.is_reachable(user_data, resource_data, 1) is False
+
+    @pytest.mark.parametrize(
+        "user_nodes,scope_nodes,resource_nodes",
+        (
+            (
+                [uuid.uuid4(), uuid.uuid4()],
+                [uuid.uuid4(), uuid.uuid4()],
+                [uuid.uuid4(), uuid.uuid4(), uuid.uuid4()],
+            ),
+        ),
+        indirect=True,
+    )
+    async def test_is_reachable_user_not_exist(
+        self, user_nodes, scope_nodes, resource_nodes
+    ):
+        owner = user_nodes[0]
+        employee = user_nodes[1]
+        company = scope_nodes[0]
+        selling_point = scope_nodes[1]
+        company_resource = resource_nodes[0]
+        selling_point_resource = resource_nodes[1]
+        personal_resource = resource_nodes[2]
+        await company.owner.connect(owner)
+        await company.scopes.connect(selling_point)
+        await company.resources.connect(company_resource)
+        await selling_point.resources.connect(selling_point_resource)
+        await selling_point.users.connect(employee)
+        await employee.own_scopes.connect(selling_point)
+        await employee.resources.connect(personal_resource)
+        user_data = UserPropertiesDTO(user_id=uuid.uuid4(), role=owner.role)
+        resource_data = ResourcePropertiesDTO(
+            resource_id=company_resource.resource_id, type=company_resource.type
+        )
+        with pytest.raises(ValueError, match="User not found"):
+            assert await UserDAO.is_reachable(user_data, resource_data)
+
+    @pytest.mark.parametrize(
+        "user_nodes,scope_nodes,resource_nodes",
+        (
+            (
+                [uuid.uuid4(), uuid.uuid4()],
+                [uuid.uuid4(), uuid.uuid4()],
+                [uuid.uuid4(), uuid.uuid4(), uuid.uuid4()],
+            ),
+        ),
+        indirect=True,
+    )
+    async def test_is_reachable_object_not_exist(
+        self, user_nodes, scope_nodes, resource_nodes
+    ):
+        owner = user_nodes[0]
+        employee = user_nodes[1]
+        company = scope_nodes[0]
+        selling_point = scope_nodes[1]
+        company_resource = resource_nodes[0]
+        selling_point_resource = resource_nodes[1]
+        personal_resource = resource_nodes[2]
+        await company.owner.connect(owner)
+        await company.scopes.connect(selling_point)
+        await company.resources.connect(company_resource)
+        await selling_point.resources.connect(selling_point_resource)
+        await selling_point.users.connect(employee)
+        await employee.own_scopes.connect(selling_point)
+        await employee.resources.connect(personal_resource)
+        user_data = UserPropertiesDTO(user_id=owner.user_id, role=owner.role)
+        resource_data = ResourcePropertiesDTO(
+            resource_id=uuid.uuid4(), type=company_resource.type
+        )
+        with pytest.raises(ValueError, match="Resource not found"):
+            assert await UserDAO.is_reachable(user_data, resource_data)
+
+    @pytest.mark.parametrize(
+        "user_nodes,scope_nodes,resource_nodes",
+        (
+            (
+                [uuid.uuid4(), uuid.uuid4()],
+                [uuid.uuid4(), uuid.uuid4()],
+                [uuid.uuid4(), uuid.uuid4(), uuid.uuid4()],
+            ),
+        ),
+        indirect=True,
+    )
+    async def test_is_reachable_object_wrong_dto_type(
+        self, user_nodes, scope_nodes, resource_nodes
+    ):
+        owner = user_nodes[0]
+        employee = user_nodes[1]
+        company = scope_nodes[0]
+        selling_point = scope_nodes[1]
+        company_resource = resource_nodes[0]
+        selling_point_resource = resource_nodes[1]
+        personal_resource = resource_nodes[2]
+        await company.owner.connect(owner)
+        await company.scopes.connect(selling_point)
+        await company.resources.connect(company_resource)
+        await selling_point.resources.connect(selling_point_resource)
+        await selling_point.users.connect(employee)
+        await employee.own_scopes.connect(selling_point)
+        await employee.resources.connect(personal_resource)
+        user_data = UserPropertiesDTO(user_id=owner.user_id, role=owner.role)
+        resource_data = ResourceCreateDTO(
+            resource_id=uuid.uuid4(),
+            type=company_resource.type,
+            scope_ids=[],
+            user_ids=[],
+        )
+        with pytest.raises(
+            ValueError, match=f"Unknown object type: {type(resource_data)}"
+        ):
+            assert await UserDAO.is_reachable(user_data, resource_data)
