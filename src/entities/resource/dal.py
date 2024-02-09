@@ -1,10 +1,10 @@
 import uuid
 
 from src.entities.base import DAO
-from src.entities.user.models import User
-from src.entities.resource.models import Resource
-from src.entities.scope.models import Scope
-from src.entities.resource.dto import (
+from src.entities.user import User
+from src.entities.scope import Scope
+from src.entities.resource import (
+    Resource,
     ResourceCreateDTO,
     ResourceUpdateDTO,
     ResourcePropertiesDTO,

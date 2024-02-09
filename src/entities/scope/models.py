@@ -7,9 +7,9 @@ from pyneo4j_ogm import (  # type: ignore
     RelationshipPropertyCardinality,
 )
 
-from src.entities.resource.models import Resource
-from src.entities.user.models import User
-from src.relationships.default import Default
+from src.entities.resource import Resource
+from src.entities.user import User
+from src.relationships import Default
 
 
 class Scope(NodeModel):
