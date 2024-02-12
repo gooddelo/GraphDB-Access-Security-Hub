@@ -16,6 +16,12 @@ if typing.TYPE_CHECKING:
     from src.entities.scope.models import Scope  # noqa
 
 
+async def _check_uniqueness(self, *args, **kwargs):
+    user = await User.find_one({"user_id": str(self.user_id), "role": self.role})
+    if user is not None:
+        raise ValueError(f"User {self.user_id} with role {self.role} already exists")
+
+
 class User(NodeModel):
     user_id: uuid.UUID
     role: str
@@ -43,4 +49,9 @@ class User(NodeModel):
     )
 
     def __hash__(self):
-        return hash(f'{self.user_id}.{self.role}')
+        return hash(f"{self.user_id}.{self.role}")
+
+    class Settings:
+        pre_hooks = {
+            "create": _check_uniqueness,
+        }
