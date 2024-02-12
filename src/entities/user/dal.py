@@ -74,11 +74,8 @@ class UserDAO(DAO):
         cls,
         user_data: UserPropertiesDTO,
         object_data: UserPropertiesDTO | ScopePropertiesDTO | ResourcePropertiesDTO,
-        max_depth: int | None = None,
     ):
-        user = await cls.node_type.find_one(user_data.model_dump(mode="json"))
-        if user is None:
-            raise ValueError(f"{cls.node_type.__name__} not found")
+        user = await cls.node_type.find_one(user_data.model_dump(mode='json'))
         object_class = None
         if isinstance(object_data, UserPropertiesDTO):
             object_class = User
@@ -86,17 +83,14 @@ class UserDAO(DAO):
             object_class = Scope
         elif isinstance(object_data, ResourcePropertiesDTO):
             object_class = Resource
-        else:
-            raise ValueError(f"Unknown object type: {type(object_data)}")
-        object_ = await object_class.find_one(object_data.model_dump(mode="json"))
-        if object_ is None:
-            raise ValueError(f"{object_class.__name__} not found")
-        filters = {
-            "$node": {
-                "$labels": object_._settings.labels,
+        object_ = await object_class.find_one(
+            object_data.model_dump(mode='json')
+        )
+        reachable_nodes = await user.find_connected_nodes(
+            {
+                "$node": {
+                    "$labels": object_._settings.labels,
+                }
             }
-        }
-        if max_depth is not None:
-            filters["$maxHops"] = max_depth  # type: ignore
-        reachable_nodes = await user.find_connected_nodes(filters)
+        )
         return object_ in reachable_nodes
