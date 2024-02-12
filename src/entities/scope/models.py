@@ -57,4 +57,5 @@ class Scope(NodeModel):
     class Settings:
         pre_hooks = {
             "create": _check_uniqueness,
+            "update": _check_uniqueness,
         }
