@@ -9,7 +9,7 @@ from pyneo4j_ogm import (  # type: ignore
 )
 
 from src.entities.resource.models import Resource
-from src.relationships.default import Default
+from src.relationships import Default
 
 
 if typing.TYPE_CHECKING:
