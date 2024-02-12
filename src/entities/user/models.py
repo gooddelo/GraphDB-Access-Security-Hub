@@ -13,7 +13,7 @@ from src.relationships import Default
 
 
 if typing.TYPE_CHECKING:
-    from src.entities.scope import Scope  # noqa
+    from src.entities.scope.models import Scope  # noqa
 
 
 class User(NodeModel):

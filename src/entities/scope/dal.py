@@ -1,14 +1,14 @@
 import uuid
 
 from src.entities.base import DAO
-from src.entities.user import User
-from src.entities.resource import Resource
-from src.entities.scope import (
-    Scope,
+from src.entities.user.models import User
+from src.entities.resource.models import Resource
+from src.entities.scope.dto import (
     ScopeCreateDTO,
     ScopePropertiesDTO,
     ScopeUpdateDTO,
 )
+from src.entities.scope.models import Scope
 
 
 class ScopeDAO(DAO):

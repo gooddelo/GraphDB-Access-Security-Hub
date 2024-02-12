@@ -8,12 +8,12 @@ from pyneo4j_ogm import (  # type: ignore
     RelationshipPropertyCardinality,
 )
 
-from src.relationships import Default
+from src.relationships.default import Default
 
 
 if typing.TYPE_CHECKING:
-    from src.entities.scope import Scope  # noqa
-    from src.entities.user import User  # noqa
+    from src.entities.scope.models import Scope  # noqa
+    from src.entities.user.models import User  # noqa
 
 
 class Resource(NodeModel):
@@ -35,4 +35,4 @@ class Resource(NodeModel):
     )
 
     def __hash__(self):
-        return hash(f"{self.resource_id}.{self.type}")
+        return hash(f'{self.resource_id}.{self.type}')
