@@ -9,7 +9,7 @@ from pyneo4j_ogm import (  # type: ignore
 
 from src.entities.resource.models import Resource
 from src.entities.user.models import User
-from src.relationships.default import Default
+from src.relationships import Default
 
 
 class Scope(NodeModel):
