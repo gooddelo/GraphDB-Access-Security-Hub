@@ -16,6 +16,12 @@ if typing.TYPE_CHECKING:
     from src.entities.user.models import User  # noqa
 
 
+async def _check_uniqueness(self, *args, **kwargs):
+    resource = await Resource.find_one({"resource_id": str(self.resource_id), "type": self.type})
+    if resource is not None:
+        raise ValueError(f"Resource {self.resource_id} with type {self.type} already exists")
+
+
 class Resource(NodeModel):
     resource_id: uuid.UUID
     type: str
@@ -35,4 +41,9 @@ class Resource(NodeModel):
     )
 
     def __hash__(self):
-        return hash(f'{self.resource_id}.{self.type}')
+        return hash(f"{self.resource_id}.{self.type}")
+
+    class Settings:
+        pre_hooks = {
+            "create": _check_uniqueness,
+        }
