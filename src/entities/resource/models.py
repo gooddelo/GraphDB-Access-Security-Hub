@@ -12,8 +12,8 @@ from src.relationships import Default
 
 
 if typing.TYPE_CHECKING:
-    from src.entities.scope.models import Scope  # noqa
-    from src.entities.user.models import User  # noqa
+    from src.entities.scope import Scope  # noqa
+    from src.entities.user import User  # noqa
 
 
 class Resource(NodeModel):
