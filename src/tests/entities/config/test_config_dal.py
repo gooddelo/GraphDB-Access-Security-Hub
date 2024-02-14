@@ -4,8 +4,12 @@ import pytest
 import pytest_asyncio
 import aiofiles
 
-from src.entities.config.dal import ConfigDAO, CONFIG_FILENAME
+from src.entities.config.dal import ConfigDAO, CONFIG_PATH
 from src.entities.config.dto import ConditionsDTO
+from src.entities.config.exceptions import (
+    SubjectRoleNotConfiguredError,
+    ActionNotAllowedError,
+)
 
 
 @asynccontextmanager
@@ -17,10 +21,10 @@ async def mock_open(filename, mode="r"):
             test_resource:
                 create:
                 delete:
-                    depth: 1
+                    max_depth: 1
         """
 
-    if filename == CONFIG_FILENAME:
+    if filename == CONFIG_PATH:
         yield MockFile()
     else:
         raise FileNotFoundError()
@@ -35,20 +39,39 @@ class TestConfigDAL:
     async def test_load_config(self):
         await ConfigDAO.load()
         assert ConfigDAO.config == {
-            "owner": {"test_resource": {"create": None, "delete": ConditionsDTO(depth=1)}}
+            "owner": {
+                "test_resource": {"create": None, "delete": ConditionsDTO(max_depth=1)}
+            }
         }
-    
+
     async def test_get_permit_conditions_none(self):
         await ConfigDAO.load()
-        assert await ConfigDAO.get_permit_conditions("owner", "test_resource", "create") is None
-                
+        assert (
+            await ConfigDAO.get_permit_conditions("owner", "test_resource", "create")
+            is None
+        )
+
     async def test_get_permit_conditions_depth(self):
         await ConfigDAO.load()
-        assert await ConfigDAO.get_permit_conditions("owner", "test_resource", "delete") == ConditionsDTO(depth=1)
+        assert await ConfigDAO.get_permit_conditions(
+            "owner", "test_resource", "delete"
+        ) == ConditionsDTO(max_depth=1)
 
-    async def test_get_permit_conditions_role_not_exist(self):
+    async def test_get_permit_conditions_role_not_in_config(self):
         await ConfigDAO.load()
-        with pytest.raises(KeyError):
-            await ConfigDAO.get_permit_conditions("not_exist", "test_resource", "create")
-                
-                
+        with pytest.raises(SubjectRoleNotConfiguredError, match="not_exist"):
+            await ConfigDAO.get_permit_conditions(
+                "not_exist", "test_resource", "create"
+            )
+
+    async def test_get_permit_conditions_type_not_in_config(self):
+        await ConfigDAO.load()
+        with pytest.raises(ActionNotAllowedError, match="owner\tnot_exist\tcreate"):
+            await ConfigDAO.get_permit_conditions("owner", "not_exist", "create")
+
+    async def test_get_permit_conditions_action_not_in_config(self):
+        await ConfigDAO.load()
+        with pytest.raises(
+            ActionNotAllowedError, match="owner\ttest_resource\tnot_exist"
+        ):
+            await ConfigDAO.get_permit_conditions("owner", "test_resource", "not_exist")
