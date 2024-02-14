@@ -1,0 +1,27 @@
+owner:
+  self:
+    create_namespace:
+    update:
+    delete:
+  resource:
+    read:
+    update:
+    delete:
+  namespace:
+    create_resource:
+    create_manager:
+    read:
+    update:
+    delete:
+  manager:
+    read:
+    delete:
+manager:
+  resource:
+    read:
+    update:
+  namespace:
+    create_resource:
+    read:
+  manager:
+    read:
