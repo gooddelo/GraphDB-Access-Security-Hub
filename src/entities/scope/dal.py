@@ -32,7 +32,7 @@ class ScopeDAO(DAO):
     @classmethod
     async def read(cls, id: uuid.UUID):
         scope = await cls.node_type.find_one({"scope_id": str(id)})
-        return ScopePropertiesDTO.from_orm(scope)
+        return ScopePropertiesDTO.model_validate(scope)
 
     @classmethod
     async def update(cls, new_data: ScopeUpdateDTO):

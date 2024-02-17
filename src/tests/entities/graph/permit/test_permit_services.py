@@ -23,19 +23,19 @@ class TestPermitServices:
             (
                 [(uuid.uuid4(), "owner"), (uuid.uuid4(), "employee")],
                 [(uuid.uuid4(), "company"), (uuid.uuid4(), "selling point")],
-                [(uuid.uuid4(), "company_resource"), (uuid.uuid4(), "selling point resource"), (uuid.uuid4(), "personal resource")],
+                [
+                    (uuid.uuid4(), "company_resource"),
+                    (uuid.uuid4(), "selling point resource"),
+                    (uuid.uuid4(), "personal resource"),
+                ],
             ),
         ),
         indirect=True,
     )
     async def test_get_permit(self, user_nodes, scope_nodes, resource_nodes):
-        owner = user_nodes[0]
-        employee = user_nodes[1]
-        company = scope_nodes[0]
-        selling_point = scope_nodes[1]
-        company_resource = resource_nodes[0]
-        selling_point_resource = resource_nodes[1]
-        personal_resource = resource_nodes[2]
+        owner, employee = user_nodes
+        company, selling_point = scope_nodes
+        company_resource, selling_point_resource, personal_resource = resource_nodes
         await company.owner.connect(owner)
         await company.scopes.connect(selling_point)
         await company.resources.connect(company_resource)
@@ -44,8 +44,8 @@ class TestPermitServices:
         await employee.own_scopes.connect(selling_point)
         await employee.resources.connect(personal_resource)
         data = PermitRequestDTO(
-            subject=UserPropertiesDTO.from_orm(owner),
-            object=ResourcePropertiesDTO.from_orm(company_resource),
+            subject=UserPropertiesDTO.model_validate(owner),
+            object=ResourcePropertiesDTO.model_validate(company_resource),
             action="read",
         )
         permit = await get_permit(data)

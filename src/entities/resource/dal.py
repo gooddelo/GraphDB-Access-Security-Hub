@@ -27,7 +27,7 @@ class ResourceDAO(DAO):
     @classmethod
     async def read(cls, id: uuid.UUID):
         resource = await cls.node_type.find_one({"resource_id": str(id)})
-        return ResourcePropertiesDTO.from_orm(resource)
+        return ResourcePropertiesDTO.model_validate(resource)
 
     @classmethod
     async def update(cls, new_data: ResourceUpdateDTO):

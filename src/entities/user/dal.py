@@ -32,7 +32,7 @@ class UserDAO(DAO):
     @classmethod
     async def read(cls, id: uuid.UUID):
         user = await cls.node_type.find_one({"user_id": str(id)})
-        return UserPropertiesDTO.from_orm(user)
+        return UserPropertiesDTO.model_validate(user)
 
     @classmethod
     async def update(cls, new_data: UserUpdateDTO):
