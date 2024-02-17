@@ -15,7 +15,7 @@ CONFIG_PATH = Path(__file__).parent.parent.parent.parent / "config" / "config.ym
 
 
 class ConfigDAO:
-    config: Dict[str, Dict[str, Dict[str, ConditionsDTO | None]]] = {}
+    config: Dict[str, Dict[str, Dict[str, ConditionsDTO]]] = {}
 
     @classmethod
     async def load(cls):
@@ -23,22 +23,24 @@ class ConfigDAO:
             config_str = await config_file.read()
             config_dict = yaml.safe_load(config_str)
             for role in config_dict.keys():
+                cls.config[role] = dict.fromkeys(config_dict[role].keys(), {})
                 for object in config_dict[role].keys():
-                    cls.config[role] = dict.fromkeys(config_dict[role].keys(), None)
+                    cls.config[role][object] = dict.fromkeys(
+                        config_dict[role][object].keys(), {}
+                    )
                     for action in config_dict[role][object].keys():
-                        cls.config[role][object] = dict.fromkeys(
-                            config_dict[role][object].keys(), None
-                        )
                         conditions = config_dict[role][object][action]
-                        if conditions is not None:
+                        try:
                             cls.config[role][object][action] = ConditionsDTO(
                                 **conditions
                             )
+                        except TypeError:
+                            cls.config[role][object][action] = ConditionsDTO()
 
     @classmethod
     async def get_permit_conditions(
         cls, role: str, object: str, action: str
-    ) -> ConditionsDTO | None:
+    ) -> ConditionsDTO:
         try:
             return cls.config[role][object][action]
         except KeyError:

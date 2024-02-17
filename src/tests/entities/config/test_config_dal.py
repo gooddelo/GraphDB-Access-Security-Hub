@@ -1,10 +1,7 @@
-from contextlib import asynccontextmanager
-
 import pytest
 import pytest_asyncio
-import aiofiles
 
-from src.entities.config.dal import ConfigDAO, CONFIG_PATH
+from src.entities.config.dal import ConfigDAO
 from src.entities.config.dto import ConditionsDTO
 from src.entities.config.exceptions import (
     SubjectRoleNotConfiguredError,
@@ -12,35 +9,18 @@ from src.entities.config.exceptions import (
 )
 
 
-@asynccontextmanager
-async def mock_open(filename, mode="r"):
-    class MockFile:
-        async def read(self):
-            return """
-        owner:
-            test_resource:
-                create:
-                delete:
-                    max_depth: 1
-        """
-
-    if filename == CONFIG_PATH:
-        yield MockFile()
-    else:
-        raise FileNotFoundError()
-
-
 @pytest.mark.asyncio
 class TestConfigDAL:
     @pytest_asyncio.fixture(autouse=True)
-    async def patch_open(self, monkeypatch):
-        monkeypatch.setattr(aiofiles, "open", mock_open)
+    async def patch_open(self, patch_open_small_config):
+        yield
 
     async def test_load_config(self):
         await ConfigDAO.load()
         assert ConfigDAO.config == {
             "owner": {
-                "test_resource": {"create": None, "delete": ConditionsDTO(max_depth=1)}
+                "test_resource": {"create": ConditionsDTO(), "delete": ConditionsDTO(max_depth=1)},
+                "test_resource_2": {"create": ConditionsDTO(), "update": ConditionsDTO(max_depth=1)},
             }
         }
 
@@ -48,7 +28,7 @@ class TestConfigDAL:
         await ConfigDAO.load()
         assert (
             await ConfigDAO.get_permit_conditions("owner", "test_resource", "create")
-            is None
+            == ConditionsDTO()
         )
 
     async def test_get_permit_conditions_depth(self):

@@ -1,27 +1,55 @@
 owner:
   self:
-    create_namespace:
-    update:
-    delete:
-  resource:
+    create_company:
+    create_personal_resource:
     read:
     update:
     delete:
-  namespace:
+  company_resource:
+    read:
+    update:
+    delete:
+  selling_point_resource:
+    read:
+    delete:
+  personal_resource:
+    read:
+    update:
+      max_depth: 1
+    delete:
+      max_depth: 1
+  company:
     create_resource:
-    create_manager:
+    create_employee:
+    create_selling_point:
     read:
     update:
     delete:
-  manager:
-    read:
-    delete:
-manager:
-  resource:
-    read:
-    update:
-  namespace:
+  selling_point:
     create_resource:
     read:
-  manager:
+    update:
+    delete:
+  employee:
+    read:
+    delete:
+employee:
+  self:
+    create_personal_resource:
+    read:
+    update:
+    delete:
+  personal_resource:
+    read:
+    update:
+      max_depth: 1
+    delete:
+      max_depth: 1
+  selling_point:
+    create_resource:
+    read:
+  selling_point_resource:
+    read:
+    update:
+  employee:
     read:

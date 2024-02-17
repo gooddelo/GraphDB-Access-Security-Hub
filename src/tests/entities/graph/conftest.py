@@ -1,4 +1,5 @@
 import asyncio
+import uuid
 from typing import Iterator
 
 import pytest
@@ -38,26 +39,53 @@ async def drop_nodes(neo4j_client: Pyneo4jClient):
 
 @pytest_asyncio.fixture
 async def user_nodes(request: SubRequest):
-    user_ids = request.param
-    users = [await User(user_id=user_id, role="user").create() for user_id in user_ids]
+    users_data = request.param
+    users = []
+    if len(users_data) > 0:
+        if isinstance(users_data[0], uuid.UUID):
+            users = [
+                await User(user_id=user_id, role="user").create()
+                for user_id in users_data
+            ]
+        elif isinstance(users_data[0], tuple):
+            users = [
+                await User(user_id=user_id, role=role).create()
+                for user_id, role in users_data
+            ]
     return users
 
 
 @pytest_asyncio.fixture
 async def scope_nodes(request: SubRequest):
-    scope_ids = request.param
-    scopes = [
-        await Scope(scope_id=scope_id, name="company").create()
-        for scope_id in scope_ids
-    ]
+    scopes_data = request.param
+    scopes = []
+    if len(scopes_data) > 0:
+        if isinstance(scopes_data[0], uuid.UUID):
+            scopes = [
+                await Scope(scope_id=scope_id, name="company").create()
+                for scope_id in scopes_data
+            ]
+        elif isinstance(scopes_data[0], tuple):
+            scopes = [
+                await Scope(scope_id=scope_id, name=name).create()
+                for scope_id, name in scopes_data
+            ]
     return scopes
 
 
 @pytest_asyncio.fixture
 async def resource_nodes(request: SubRequest):
-    resource_ids = request.param
-    resources = [
-        await Resource(resource_id=resource_id, type="resource").create()
-        for resource_id in resource_ids
-    ]
+    resources_data = request.param
+    resources = []
+    if len(resources_data) > 0:
+        if isinstance(resources_data[0], uuid.UUID):
+            resources = [
+                await Resource(resource_id=resource_id, type="resource").create()
+                for resource_id in resources_data
+            ]
+        elif isinstance(resources_data[0], tuple):
+            resources = [
+                await Resource(resource_id=resource_id, type=type).create()
+                for resource_id, type in resources_data
+            ]
     return resources
