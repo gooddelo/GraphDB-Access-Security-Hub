@@ -8,6 +8,11 @@ from src.entities.resource.models import Resource
 from src.entities.user.dto import UserCreateDTO, UserPropertiesDTO, UserUpdateDTO
 from src.entities.scope.dto import ScopePropertiesDTO
 from src.entities.resource.dto import ResourcePropertiesDTO
+from src.entities.user.exceptions import (
+    UserNotFoundException,
+    ObjectNotFoundException,
+    ObjectTypeError,
+)
 
 
 class UserDAO(DAO):
@@ -81,7 +86,7 @@ class UserDAO(DAO):
     ):
         user = await cls.node_type.find_one(user_data.model_dump(mode="json"))
         if user is None:
-            raise ValueError(f"{cls.node_type.__name__} not found")
+            raise UserNotFoundException(str(user_data))
         object_class = None
         if isinstance(object_data, UserPropertiesDTO):
             object_class = User
@@ -90,10 +95,10 @@ class UserDAO(DAO):
         elif isinstance(object_data, ResourcePropertiesDTO):
             object_class = Resource
         else:
-            raise ValueError(f"Unknown object type: {type(object_data)}")
+            raise ObjectTypeError(type(object_data))
         object_ = await object_class.find_one(object_data.model_dump(mode="json"))
         if object_ is None:
-            raise ValueError(f"{object_class.__name__} not found")
+            raise ObjectNotFoundException(object=str(object_data))
         filters = {
             "$node": {
                 "$labels": object_._settings.labels,

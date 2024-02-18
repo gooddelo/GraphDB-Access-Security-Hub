@@ -1,3 +1,4 @@
+import re
 import uuid
 
 import pytest
@@ -6,6 +7,11 @@ from src.entities.user.models import User
 from src.entities.user.dto import UserCreateDTO, UserPropertiesDTO, UserUpdateDTO
 from src.entities.user.dal import UserDAO
 from src.entities.resource.dto import ResourcePropertiesDTO, ResourceCreateDTO
+from src.entities.user.exceptions import (
+    UserNotFoundException,
+    ObjectNotFoundException,
+    ObjectTypeError,
+)
 
 
 @pytest.mark.asyncio
@@ -210,7 +216,10 @@ class TestUserDAL:
         resource_data = ResourcePropertiesDTO(
             resource_id=company_resource.resource_id, type=company_resource.type
         )
-        with pytest.raises(ValueError, match="User not found"):
+        with pytest.raises(
+            UserNotFoundException,
+            match=re.escape(f"Subj: {user_data}; Obj: ; Act: ;"),
+        ):
             assert await UserDAO.is_reachable(user_data, resource_data)
 
     @pytest.mark.parametrize(
@@ -245,7 +254,10 @@ class TestUserDAL:
         resource_data = ResourcePropertiesDTO(
             resource_id=uuid.uuid4(), type=company_resource.type
         )
-        with pytest.raises(ValueError, match="Resource not found"):
+        with pytest.raises(
+            ObjectNotFoundException,
+            match=re.escape(f"Subj: ; Obj: {resource_data}; Act: ;"),
+        ):
             assert await UserDAO.is_reachable(user_data, resource_data)
 
     @pytest.mark.parametrize(
@@ -284,6 +296,6 @@ class TestUserDAL:
             user_ids=[],
         )
         with pytest.raises(
-            ValueError, match=f"Unknown object type: {type(resource_data)}"
+            ObjectTypeError, match=re.escape(f"{type(resource_data)}")
         ):
             assert await UserDAO.is_reachable(user_data, resource_data)

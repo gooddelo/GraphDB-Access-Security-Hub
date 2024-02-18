@@ -1,6 +1,9 @@
-class SubjectRoleNotConfiguredError(Exception):
+from src.entities.base import PermitDeniedException
+
+
+class SubjectRoleNotConfiguredError(PermitDeniedException):
     pass
 
 
-class ActionNotAllowedError(Exception):
+class ActionNotAllowedError(PermitDeniedException):
     pass

@@ -46,12 +46,12 @@ class TestConfigDAL:
 
     async def test_get_permit_conditions_type_not_in_config(self):
         await ConfigDAO.load()
-        with pytest.raises(ActionNotAllowedError, match="owner\tnot_exist\tcreate"):
+        with pytest.raises(ActionNotAllowedError, match="Subj: owner; Obj: not_exist; Act: create;"):
             await ConfigDAO.get_permit_conditions("owner", "not_exist", "create")
 
     async def test_get_permit_conditions_action_not_in_config(self):
         await ConfigDAO.load()
         with pytest.raises(
-            ActionNotAllowedError, match="owner\ttest_resource\tnot_exist"
+            ActionNotAllowedError, match="Subj: owner; Obj: test_resource; Act: not_exist;"
         ):
             await ConfigDAO.get_permit_conditions("owner", "test_resource", "not_exist")

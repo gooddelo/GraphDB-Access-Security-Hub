@@ -47,6 +47,6 @@ class ConfigDAO:
             try:
                 cls.config[role]
             except KeyError:
-                raise SubjectRoleNotConfiguredError(role)
+                raise SubjectRoleNotConfiguredError(role, object, action)
             else:
-                raise ActionNotAllowedError(f"{role}\t{object}\t{action}")
+                raise ActionNotAllowedError(role, object, action)
