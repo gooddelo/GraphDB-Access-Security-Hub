@@ -4,7 +4,7 @@ from src.entities.user.dto import UserPropertiesDTO
 from src.entities.permit.dto import PermitRequestDTO
 from src.entities.scope.dto import ScopePropertiesDTO
 from src.entities.resource.dto import ResourcePropertiesDTO
-
+from src.entities.base import PermitDeniedException
 
 async def get_permit(data: PermitRequestDTO):
     object_attr = None
@@ -21,6 +21,6 @@ async def get_permit(data: PermitRequestDTO):
         permit = await UserDAO.is_reachable(
             data.subject, data.object, **permit_conditions.model_dump()
         )
-    except ValueError:
+    except PermitDeniedException:
         return False
     return permit
