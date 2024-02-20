@@ -1,10 +1,11 @@
-from src.entities.config.dal import ConfigDAO
+from src.entities.policy.dal import PolicyDAO
 from src.entities.user.dal import UserDAO
 from src.entities.user.dto import UserPropertiesDTO
 from src.entities.permit.dto import PermitRequestDTO
 from src.entities.scope.dto import ScopePropertiesDTO
 from src.entities.resource.dto import ResourcePropertiesDTO
 from src.entities.base import PermitDeniedException
+
 
 async def get_permit(data: PermitRequestDTO):
     object_attr = None
@@ -15,7 +16,7 @@ async def get_permit(data: PermitRequestDTO):
     elif isinstance(data.object, ResourcePropertiesDTO):
         object_attr = data.object.type
     try:
-        permit_conditions = await ConfigDAO.get_permit_conditions(
+        permit_conditions = await PolicyDAO.get_permit_conditions(
             data.subject.role, object_attr, data.action
         )
         permit = await UserDAO.is_reachable(

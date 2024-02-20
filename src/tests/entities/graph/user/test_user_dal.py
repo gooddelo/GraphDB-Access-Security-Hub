@@ -295,7 +295,5 @@ class TestUserDAL:
             scope_ids=[],
             user_ids=[],
         )
-        with pytest.raises(
-            ObjectTypeError, match=re.escape(f"{type(resource_data)}")
-        ):
+        with pytest.raises(ObjectTypeError, match=re.escape(f"{type(resource_data)}")):
             assert await UserDAO.is_reachable(user_data, resource_data)

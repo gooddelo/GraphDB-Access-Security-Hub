@@ -5,7 +5,7 @@ import pytest_asyncio
 
 from src.entities.permit.services import get_permit
 from src.entities.permit.dto import PermitRequestDTO
-from src.entities.config.dal import ConfigDAO
+from src.entities.policy.dal import PolicyDAO
 from src.entities.user.dto import UserPropertiesDTO
 from src.entities.scope.dto import ScopePropertiesDTO
 from src.entities.resource.dto import ResourcePropertiesDTO
@@ -14,8 +14,10 @@ from src.entities.resource.dto import ResourcePropertiesDTO
 @pytest.mark.asyncio
 class TestPermitServices:
     @pytest_asyncio.fixture(autouse=True)
-    async def set_config(self, patch_open_big_config):
-        await ConfigDAO.load()
+    async def set_policy(self, patch_open_big_policy):
+        await PolicyDAO.load()
+        yield
+        PolicyDAO.policy = {}
 
     @pytest.mark.parametrize(
         "user_nodes,scope_nodes,resource_nodes",
@@ -242,7 +244,7 @@ class TestPermitServices:
         ),
         indirect=True,
     )
-    async def test_get_permit_role_not_configured(
+    async def test_get_permit_role_not_policyured(
         self, user_nodes, scope_nodes, resource_nodes
     ):
         owner, employee = user_nodes
@@ -293,7 +295,9 @@ class TestPermitServices:
         await employee.resources.connect(personal_resource)
         data = PermitRequestDTO(
             subject=UserPropertiesDTO.model_validate(owner),
-            object=ResourcePropertiesDTO(resource_id=uuid.uuid4(), type="company_resource"),
+            object=ResourcePropertiesDTO(
+                resource_id=uuid.uuid4(), type="company_resource"
+            ),
             action="read",
         )
         permit = await get_permit(data)
@@ -314,7 +318,7 @@ class TestPermitServices:
         ),
         indirect=True,
     )
-    async def test_get_permit_object_not_configured(
+    async def test_get_permit_object_not_policyured(
         self, user_nodes, scope_nodes, resource_nodes
     ):
         owner, employee = user_nodes
@@ -350,7 +354,7 @@ class TestPermitServices:
         ),
         indirect=True,
     )
-    async def test_get_permit_action_not_configured(
+    async def test_get_permit_action_not_policyured(
         self, user_nodes, scope_nodes, resource_nodes
     ):
         owner, employee = user_nodes
