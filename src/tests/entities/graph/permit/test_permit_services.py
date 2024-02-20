@@ -318,7 +318,7 @@ class TestPermitServices:
         ),
         indirect=True,
     )
-    async def test_get_permit_object_not_policyured(
+    async def test_get_permit_object_not_configured(
         self, user_nodes, scope_nodes, resource_nodes
     ):
         owner, employee = user_nodes
@@ -354,7 +354,7 @@ class TestPermitServices:
         ),
         indirect=True,
     )
-    async def test_get_permit_action_not_policyured(
+    async def test_get_permit_action_not_configured(
         self, user_nodes, scope_nodes, resource_nodes
     ):
         owner, employee = user_nodes
