@@ -222,7 +222,7 @@ class TestPermitServices:
         await employee.own_scopes.connect(selling_point)
         await employee.resources.connect(personal_resource)
         data = PermitRequestDTO(
-            subject=UserPropertiesDTO(user_id=uuid.uuid4(), role="owner"),
+            subject=UserPropertiesDTO(id_=str(uuid.uuid4()), role="owner"),
             object=ScopePropertiesDTO.model_validate(company),
             action="read",
         )
@@ -258,7 +258,7 @@ class TestPermitServices:
         await employee.own_scopes.connect(selling_point)
         await employee.resources.connect(personal_resource)
         data = PermitRequestDTO(
-            subject=UserPropertiesDTO(user_id=uuid.uuid4(), role="not_exist"),
+            subject=UserPropertiesDTO(id_=str(uuid.uuid4()), role="not_exist"),
             object=ScopePropertiesDTO.model_validate(company),
             action="read",
         )
@@ -296,7 +296,7 @@ class TestPermitServices:
         data = PermitRequestDTO(
             subject=UserPropertiesDTO.model_validate(owner),
             object=ResourcePropertiesDTO(
-                resource_id=uuid.uuid4(), type="company_resource"
+                id_=str(uuid.uuid4()), type="company_resource"
             ),
             action="read",
         )
@@ -333,7 +333,7 @@ class TestPermitServices:
         await employee.resources.connect(personal_resource)
         data = PermitRequestDTO(
             subject=UserPropertiesDTO.model_validate(owner),
-            object=ResourcePropertiesDTO(resource_id=uuid.uuid4(), type="not_exist"),
+            object=ResourcePropertiesDTO(id_=str(uuid.uuid4()), type="not_exist"),
             action="read",
         )
         permit = await get_permit(data)

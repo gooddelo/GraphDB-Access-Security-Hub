@@ -4,3 +4,20 @@ services:
     ports:
       - 7474:7474
       - 7687:7687
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3.12-management
+    hostname: rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - 15672:15672
+      - 5672:5672
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 10s
+      retries: 60
+    restart: always

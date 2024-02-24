@@ -9,13 +9,16 @@ from src.entities.resource.models import Resource
 class TestResourceModel:
     async def test_create_existing_resource(self, caplog):
         resource = Resource(
-            resource_id=uuid.uuid4(),
-            type="resource",
+            id_=str(uuid.uuid4()),
+            attr="resource",
         )
         await resource.create()
-        with pytest.raises(ValueError, match=f"Resource {resource.resource_id} with type {resource.type} already exists"):
+        with pytest.raises(
+            ValueError,
+            match=f"Resource {resource.id_} with attr {resource.type} already exists",
+        ):
             resource_copy = Resource(
-                resource_id=resource.resource_id,
-                type=resource.type,
+                id_=resource.id_,
+                attr=resource.type,
             )
             await resource_copy.create()

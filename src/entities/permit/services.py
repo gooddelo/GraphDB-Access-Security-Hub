@@ -20,7 +20,7 @@ async def get_permit(data: PermitRequestDTO):
             data.subject.role, object_attr, data.action
         )
         permit = await UserDAO.is_reachable(
-            data.subject, data.object, **permit_conditions.model_dump()
+            data.subject, data.object, **permit_conditions.model_dump(by_alias=True)
         )
     except PermitDeniedException:
         return False

@@ -1,27 +1,36 @@
-import uuid
-from typing import List
+from typing import List, TypeVar, Generic
 
-from src.entities.base import DTO
+from pydantic import Field
+
+from src.entities.base import DTO, PropertiesDTO
 
 
-class ScopeCreateDTO(DTO):
-    scope_id: uuid.UUID
+UserPropertiesDTO = TypeVar("UserPropertiesDTO", bound=PropertiesDTO)
+ResourcePropertiesDTO = TypeVar("ResourcePropertiesDTO", bound=PropertiesDTO)
+
+
+class ScopePropertiesDTO(PropertiesDTO):
+    attr: str = Field(validation_alias="name")
+
+    @property
+    def name(self) -> str:
+        return self.attr
+
+
+class ScopeCreateDTO(DTO, Generic[UserPropertiesDTO, ResourcePropertiesDTO]):
+    id_: str
     name: str
-    owner_id: uuid.UUID
-    user_ids: List[uuid.UUID]
-    scope_ids: List[uuid.UUID]
-    resource_ids: List[uuid.UUID]
+    owner: UserPropertiesDTO
+    users: List[UserPropertiesDTO]
+    scopes: List[ScopePropertiesDTO]
+    resources: List[ResourcePropertiesDTO]
 
 
-class ScopeUpdateDTO(DTO):
-    scope_id: uuid.UUID
+class ScopeUpdateDTO(DTO, Generic[UserPropertiesDTO, ResourcePropertiesDTO]):
+    id_: str
+    old_name: str
     new_name: str | None = None
-    new_owner_id: uuid.UUID | None = None
-    new_user_ids: List[uuid.UUID] | None = None
-    new_scope_ids: List[uuid.UUID] | None = None
-    new_resource_ids: List[uuid.UUID] | None = None
-
-
-class ScopePropertiesDTO(DTO):
-    scope_id: uuid.UUID
-    name: str
+    new_owner: UserPropertiesDTO | None = None
+    new_users: List[UserPropertiesDTO] | None = None
+    new_scopes: List[ScopePropertiesDTO] | None = None
+    new_resources: List[ResourcePropertiesDTO] | None = None

@@ -7,11 +7,11 @@ from yarl import URL
 class AMQPConfig(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="RABBITMQ_")
 
-    host: str
-    port: int
-    default_user: str
-    default_pass: str
-    vhost: str
+    host: str = "localhost"
+    port: int = 5672
+    default_user: str = "guest"
+    default_pass: str = "guest"
+    vhost: str = "/"
 
     def connection_url(self) -> URL:
         return build_url(

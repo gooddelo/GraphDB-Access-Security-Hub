@@ -1,14 +1,15 @@
-import uuid
 import typing
 
+from pydantic import Field
 from pyneo4j_ogm import (  # type: ignore
-    NodeModel,
     RelationshipProperty,
     RelationshipPropertyDirection,
     RelationshipPropertyCardinality,
 )
 
 from src.entities.resource.models import Resource
+from src.entities.base import BaseNode
+
 from src.relationships import Default
 
 
@@ -16,16 +17,7 @@ if typing.TYPE_CHECKING:
     from src.entities.scope.models import Scope  # noqa
 
 
-async def _check_uniqueness(self, *args, **kwargs):
-    user = await User.find_one({"user_id": str(self.user_id), "role": self.role})
-    if user is not None:
-        raise ValueError(f"User {self.user_id} with role {self.role} already exists")
-
-
-class User(NodeModel):
-    user_id: uuid.UUID
-    role: str
-
+class User(BaseNode):
     resources: RelationshipProperty[Resource, Default] = RelationshipProperty(
         target_model=Resource,
         relationship_model=Default,
@@ -48,11 +40,10 @@ class User(NodeModel):
         allow_multiple=False,
     )
 
-    def __hash__(self):
-        return hash(f"{self.user_id}.{self.role}")
+    @property
+    def role(self):
+        return self.attr
 
-    class Settings:
-        pre_hooks = {
-            "create": _check_uniqueness,
-            "update": _check_uniqueness,
-        }
+    @role.setter
+    def role(self, value):
+        self.attr = value

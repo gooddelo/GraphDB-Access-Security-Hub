@@ -5,12 +5,14 @@ import pytest
 from src.entities.user.models import User
 from src.entities.scope.models import Scope
 from src.entities.resource.models import Resource
+from src.entities.resource.dal import ResourceDAO
+from src.entities.user.dto import UserPropertiesDTO
+from src.entities.scope.dto import ScopePropertiesDTO
 from src.entities.resource.dto import (
     ResourceCreateDTO,
     ResourcePropertiesDTO,
     ResourceUpdateDTO,
 )
-from src.entities.resource.dal import ResourceDAO
 
 
 @pytest.mark.asyncio
@@ -31,14 +33,14 @@ class TestResourceDAL:
         scope_nodes,
     ):
         data = ResourceCreateDTO(
-            resource_id=uuid.uuid4(),
+            id_=str(uuid.uuid4()),
             type="resource",
-            user_ids=[user.user_id for user in user_nodes],
-            scope_ids=[scope.scope_id for scope in scope_nodes],
+            users=[UserPropertiesDTO.model_validate(user) for user in user_nodes],
+            scopes=[ScopePropertiesDTO.model_validate(scope) for scope in scope_nodes],
         )
         await ResourceDAO.create(data)
         resources = await Resource.count()
-        resource = await Resource.find_one({"resource_id": str(data.resource_id)})
+        resource = await Resource.find_one({"id_": data.id_, "attr": data.type})
         assert resources == 1
 
         connected_users = await resource.users.find_connected_nodes()
@@ -47,19 +49,11 @@ class TestResourceDAL:
         assert len(connected_scopes) == len(scope_nodes)
 
     @pytest.mark.parametrize("resource_nodes", ([uuid.uuid4()],), indirect=True)
-    async def test_read(self, resource_nodes):
-        resource_ids = [resource.resource_id for resource in resource_nodes]
-        for resource_id in resource_ids:
-            resource_data = await ResourceDAO.read(resource_id)
-            assert isinstance(resource_data, ResourcePropertiesDTO)
-            assert resource_data.resource_id == resource_id
-            assert resource_data.type == "resource"
-
-    @pytest.mark.parametrize("resource_nodes", ([uuid.uuid4()],), indirect=True)
     async def test_update_type(self, resource_nodes):
         resource = resource_nodes[0]
         new_data = ResourceUpdateDTO(
-            resource_id=resource.resource_id,
+            id_=resource.id_,
+            old_type=resource.type,
             new_type="new_type",
         )
         await ResourceDAO.update(new_data)
@@ -80,9 +74,10 @@ class TestResourceDAL:
         new_users = user_nodes[len(user_nodes) // 2 :]
         for user in old_users:
             await resource.users.connect(user)
-        new_data = ResourceUpdateDTO(
-            resource_id=resource.resource_id,
-            new_user_ids=[user.user_id for user in new_users],
+        new_data = ResourceUpdateDTO[UserPropertiesDTO, ScopePropertiesDTO](
+            id_=resource.id_,
+            old_type=resource.type,
+            new_users=[UserPropertiesDTO.model_validate(user) for user in new_users],
         )
         await ResourceDAO.update(new_data)
         connected_users = await resource.users.find_connected_nodes()
@@ -102,9 +97,10 @@ class TestResourceDAL:
         new_scopes = scope_nodes[len(scope_nodes) // 2 :]
         for scope in old_scopes:
             await resource.scopes.connect(scope)
-        new_data = ResourceUpdateDTO(
-            resource_id=resource.resource_id,
-            new_scope_ids=[scope.scope_id for scope in new_scopes],
+        new_data = ResourceUpdateDTO[UserPropertiesDTO, ScopePropertiesDTO](
+            id_=resource.id_,
+            old_type=resource.type,
+            new_scopes=[ScopePropertiesDTO.model_validate(scope) for scope in new_scopes],
         )
         await ResourceDAO.update(new_data)
         connected_scopes = await resource.scopes.find_connected_nodes()
@@ -121,11 +117,11 @@ class TestResourceDAL:
         scope = scope_nodes[0]
         await resource.users.connect(user)
         await resource.scopes.connect(scope)
-        await ResourceDAO.delete(resource.resource_id)
+        await ResourceDAO.delete(ResourcePropertiesDTO.model_validate(resource))
         assert (
-            await Resource.find_one({"resource_id": str(resource.resource_id)}) is None
+            await Resource.find_one(resource.model_dump()) is None
         )
-        assert await User.find_one({"user_id": str(user.user_id)}) is not None
-        assert await Scope.find_one({"scope_id": str(scope.scope_id)}) is not None
+        assert await User.find_one({"id_": user.id_, "attr": user.role}) is not None
+        assert await Scope.find_one({"id_": scope.id_, "attr": scope.name}) is not None
         assert len(await user.resources.find_connected_nodes()) == 0
         assert len(await scope.resources.find_connected_nodes()) == 0

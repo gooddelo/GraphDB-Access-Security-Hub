@@ -3,8 +3,10 @@ import uuid
 import pytest
 
 from src.entities.scope.models import Scope
-from src.entities.scope.dto import ScopeCreateDTO, ScopeUpdateDTO
+from src.entities.scope.dto import ScopeCreateDTO, ScopeUpdateDTO, ScopePropertiesDTO
 from src.entities.scope.services import ScopeService
+from src.entities.user.dto import UserPropertiesDTO
+from src.entities.resource.dto import ResourcePropertiesDTO
 
 
 @pytest.mark.asyncio
@@ -26,37 +28,42 @@ class TestScopeService:
         scope_nodes,
         resource_nodes,
     ):
-        owner = user_nodes.pop()
-        user_ids = [user.user_id for user in user_nodes]
-        scope_ids = [scope.scope_id for scope in scope_nodes]
-        resource_ids = [resource.resource_id for resource in resource_nodes]
+        owner = UserPropertiesDTO.model_validate(user_nodes.pop())
+        users = [UserPropertiesDTO.model_validate(user) for user in user_nodes]
+        scopes = [ScopePropertiesDTO.model_validate(scope) for scope in scope_nodes]
+        resources = [
+            ResourcePropertiesDTO.model_validate(resource)
+            for resource in resource_nodes
+        ]
 
-        data = ScopeCreateDTO(
-            scope_id=uuid.uuid4(),
+        data = ScopeCreateDTO[UserPropertiesDTO, ResourcePropertiesDTO](
+            id_=str(uuid.uuid4()),
             name="company",
-            owner_id=owner.user_id,
-            user_ids=user_ids,
-            scope_ids=scope_ids,
-            resource_ids=resource_ids,
+            owner=owner,
+            users=users,
+            scopes=scopes,
+            resources=resources,
         )
         await ScopeService.create(data)
-        scopes = await Scope.count()
-        scope = await Scope.find_one({"scope_id": str(data.scope_id)})
+        scopes_count = await Scope.count()
+        scope = await Scope.find_one({"id_": data.id_, "attr": data.name})
         connected_owners = await scope.owner.find_connected_nodes()
         assert len(connected_owners) == 1
-        assert scopes == 1 + len(scope_ids)
+        assert scopes_count == 1 + len(scopes)
 
         connected_users = await scope.users.find_connected_nodes()
         connected_scopes = await scope.scopes.find_connected_nodes()
         connected_resources = await scope.resources.find_connected_nodes()
         assert len(connected_users) == len(user_nodes)
-        assert len(connected_scopes) == len(scope_ids)
-        assert len(connected_resources) == len(resource_ids)
+        assert len(connected_scopes) == len(scopes)
+        assert len(connected_resources) == len(resources)
 
     @pytest.mark.parametrize("scope_nodes", ([uuid.uuid4()],), indirect=True)
     async def test_update_name(self, scope_nodes):
         scope = scope_nodes[0]
-        new_data = ScopeUpdateDTO(scope_id=scope.scope_id, new_name="name")
+        new_data = ScopeUpdateDTO[UserPropertiesDTO, ResourcePropertiesDTO](
+            id_=scope.id_, old_name=scope.name, new_name="name"
+        )
         await ScopeService.update(new_data)
         await scope.refresh()
         assert scope.name == "name"
@@ -69,9 +76,10 @@ class TestScopeService:
     async def test_update_owner(self, scope_nodes, user_nodes):
         scope = scope_nodes[0]
         await scope.owner.connect(user_nodes[0])
-        new_data = ScopeUpdateDTO(
-            scope_id=scope.scope_id,
-            new_owner_id=user_nodes[1].user_id,
+        new_data = ScopeUpdateDTO[UserPropertiesDTO, ResourcePropertiesDTO](
+            id_=scope.id_,
+            old_name=scope.name,
+            new_owner=UserPropertiesDTO.model_validate(user_nodes[1]),
         )
         await ScopeService.update(new_data)
         assert await scope.owner.find_connected_nodes() == [user_nodes[1]]
@@ -90,9 +98,10 @@ class TestScopeService:
         new_users = user_nodes[len(user_nodes) // 2 :]
         for user in old_users:
             await scope.users.connect(user)
-        new_data = ScopeUpdateDTO(
-            scope_id=scope.scope_id,
-            new_user_ids=[user.user_id for user in new_users],
+        new_data = ScopeUpdateDTO[UserPropertiesDTO, ResourcePropertiesDTO](
+            id_=scope.id_,
+            old_name=scope.name,
+            new_users=[UserPropertiesDTO.model_validate(user) for user in new_users],
         )
         await ScopeService.update(new_data)
         connected_users = await scope.users.find_connected_nodes()
@@ -112,9 +121,10 @@ class TestScopeService:
         new_resources = resource_nodes[len(resource_nodes) // 2 :]
         for resource in old_resources:
             await scope.resources.connect(resource)
-        new_data = ScopeUpdateDTO(
-            scope_id=scope.scope_id,
-            new_resource_ids=[resource.resource_id for resource in new_resources],
+        new_data = ScopeUpdateDTO[UserPropertiesDTO, ResourcePropertiesDTO](
+            id_=scope.id_,
+            old_name=scope.name,
+            new_resources=[ResourcePropertiesDTO.model_validate(resource) for resource in new_resources],
         )
         await ScopeService.update(new_data)
         connected_resources = await scope.resources.find_connected_nodes()
@@ -134,9 +144,10 @@ class TestScopeService:
         new_scopes = scope_nodes[len(scope_nodes) // 2 :]
         for scope in old_scopes:
             await main_scope.scopes.connect(scope)
-        new_data = ScopeUpdateDTO(
-            scope_id=main_scope.scope_id,
-            new_scope_ids=[scope.scope_id for scope in new_scopes],
+        new_data = ScopeUpdateDTO[UserPropertiesDTO, ResourcePropertiesDTO](
+            id_=main_scope.id_,
+            old_name=main_scope.name,
+            new_scopes=[ScopePropertiesDTO.model_validate(scope) for scope in new_scopes],
         )
         await ScopeService.update(new_data)
         connected_scopes = await main_scope.scopes.find_connected_nodes()
@@ -145,5 +156,5 @@ class TestScopeService:
     @pytest.mark.parametrize("scope_nodes", ([uuid.uuid4()],), indirect=True)
     async def test_delete(self, scope_nodes):
         scope = scope_nodes[0]
-        await ScopeService.delete(scope.scope_id)
-        assert await Scope.find_one({"scope_id": str(scope.scope_id)}) is None
+        await ScopeService.delete(ScopePropertiesDTO.model_validate(scope))
+        assert await Scope.find_one({"id_": scope.id_, "attr": scope.name}) is None

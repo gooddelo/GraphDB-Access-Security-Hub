@@ -7,11 +7,3 @@ class UserNotFoundException(PermitDeniedException):
 
 class ObjectNotFoundException(PermitDeniedException):
     pass
-
-
-class ObjectTypeError(TypeError):
-    pass
-
-
-class UserAlreadyExistException(ValueError):
-    pass

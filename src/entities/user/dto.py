@@ -1,25 +1,32 @@
-import uuid
-from typing import List
+from typing import List, TypeVar, Generic
 
 from pydantic import Field
 
-from src.entities.base import DTO
+from src.entities.base import DTO, PropertiesDTO
 
 
-class UserCreateDTO(DTO):
-    user_id: uuid.UUID = Field(...)
+ScopePropertiesDTO = TypeVar("ScopePropertiesDTO", bound=PropertiesDTO)
+ResourcePropertiesDTO = TypeVar("ResourcePropertiesDTO", bound=PropertiesDTO)
+
+
+class UserCreateDTO(DTO, Generic[ScopePropertiesDTO, ResourcePropertiesDTO]):
+    id_: str
     role: str
-    resource_ids: List[uuid.UUID]
-    belong_scope_ids: List[uuid.UUID]
+    resources: List[ResourcePropertiesDTO]
+    belong_scopes: List[ScopePropertiesDTO]
 
 
-class UserUpdateDTO(DTO):
-    user_id: uuid.UUID
+class UserUpdateDTO(DTO, Generic[ScopePropertiesDTO, ResourcePropertiesDTO]):
+    id_: str
+    old_role: str
     new_role: str | None = None
-    new_resource_ids: List[uuid.UUID] | None = None
-    new_belong_scope_ids: List[uuid.UUID] | None = None
+    new_resources: List[ResourcePropertiesDTO] | None = None
+    new_belong_scopes: List[ScopePropertiesDTO] | None = None
 
 
-class UserPropertiesDTO(DTO):
-    user_id: uuid.UUID
-    role: str
+class UserPropertiesDTO(PropertiesDTO):
+    attr: str = Field(validation_alias="role")
+
+    @property
+    def role(self):
+        return self.attr

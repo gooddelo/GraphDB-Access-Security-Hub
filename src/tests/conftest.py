@@ -147,12 +147,12 @@ async def user_nodes(request: SubRequest):
     if len(users_data) > 0:
         if isinstance(users_data[0], uuid.UUID):
             users = [
-                await User(user_id=user_id, role="user").create()
+                await User(id_=str(user_id), attr="user").create()
                 for user_id in users_data
             ]
         elif isinstance(users_data[0], tuple):
             users = [
-                await User(user_id=user_id, role=role).create()
+                await User(id_=str(user_id), attr=role).create()
                 for user_id, role in users_data
             ]
     return users
@@ -165,12 +165,12 @@ async def scope_nodes(request: SubRequest):
     if len(scopes_data) > 0:
         if isinstance(scopes_data[0], uuid.UUID):
             scopes = [
-                await Scope(scope_id=scope_id, name="company").create()
+                await Scope(id_=str(scope_id), attr="company").create()
                 for scope_id in scopes_data
             ]
         elif isinstance(scopes_data[0], tuple):
             scopes = [
-                await Scope(scope_id=scope_id, name=name).create()
+                await Scope(id_=str(scope_id), attr=name).create()
                 for scope_id, name in scopes_data
             ]
     return scopes
@@ -183,12 +183,12 @@ async def resource_nodes(request: SubRequest):
     if len(resources_data) > 0:
         if isinstance(resources_data[0], uuid.UUID):
             resources = [
-                await Resource(resource_id=resource_id, type="resource").create()
+                await Resource(id_=str(resource_id), attr="resource").create()
                 for resource_id in resources_data
             ]
         elif isinstance(resources_data[0], tuple):
             resources = [
-                await Resource(resource_id=resource_id, type=type).create()
+                await Resource(id_=str(resource_id), attr=type).create()
                 for resource_id, type in resources_data
             ]
     return resources
