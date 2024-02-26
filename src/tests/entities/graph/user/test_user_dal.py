@@ -8,11 +8,9 @@ from src.entities.user.dto import UserCreateDTO, UserPropertiesDTO, UserUpdateDT
 from src.entities.user.dal import UserDAO
 from src.entities.resource.dto import ResourcePropertiesDTO, ResourceCreateDTO
 from src.entities.scope.dto import ScopePropertiesDTO
-from src.entities.user.exceptions import (
-    UserNotFoundException,
-    ObjectNotFoundException,
-    ObjectTypeError,
-)
+from src.entities.user.exceptions import UserNotFoundException
+from src.entities.permit.exceptions import ObjectNotFoundException, ObjectTypeError
+from src.entities.resource.exceptions import ResourceNotFoundException
 
 
 @pytest.mark.asyncio
@@ -222,7 +220,7 @@ class TestUserDAL:
         )
         with pytest.raises(
             UserNotFoundException,
-            match=re.escape(f"Subj: {user_data}; Obj: ; Act: ;"),
+            match=f"User {user_data.id_} with role {user_data.role} doesn't exist",
         ):
             assert await UserDAO.is_reachable(user_data, resource_data)
 
@@ -259,8 +257,8 @@ class TestUserDAL:
             id_=str(uuid.uuid4()), type=company_resource.type
         )
         with pytest.raises(
-            ObjectNotFoundException,
-            match=re.escape(f"Subj: ; Obj: {resource_data}; Act: ;"),
+            ResourceNotFoundException,
+            match=f"Resource {resource_data.id_} with type {resource_data.type} doesn't exist",
         ):
             assert await UserDAO.is_reachable(user_data, resource_data)
 

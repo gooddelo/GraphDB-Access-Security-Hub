@@ -244,7 +244,7 @@ class TestPermitServices:
         ),
         indirect=True,
     )
-    async def test_get_permit_role_not_policyured(
+    async def test_get_permit_role_not_configured(
         self, user_nodes, scope_nodes, resource_nodes
     ):
         owner, employee = user_nodes

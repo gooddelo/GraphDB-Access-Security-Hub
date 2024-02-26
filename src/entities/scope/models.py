@@ -4,7 +4,10 @@ from pyneo4j_ogm import (  # type: ignore
     RelationshipPropertyCardinality,
 )
 
-from src.entities.scope.exceptions import ScopeNotFoundException
+from src.entities.scope.exceptions import (
+    ScopeNotFoundException,
+    ScopeAlreadyExistException,
+)
 from src.entities.resource.models import Resource
 from src.entities.user.models import User
 from src.entities.base import BaseNode
@@ -12,6 +15,9 @@ from src.relationships import Default
 
 
 class Scope(BaseNode):
+    exists_exception = ScopeAlreadyExistException
+    not_found_exception = ScopeNotFoundException
+
     owner: RelationshipProperty["User", Default] = RelationshipProperty(
         target_model="User",
         relationship_model=Default,

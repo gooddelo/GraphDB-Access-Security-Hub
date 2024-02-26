@@ -1,4 +1,3 @@
-import uuid
 from typing import Set
 
 from src.entities.base import DAO
@@ -10,11 +9,10 @@ from src.entities.scope.dto import ScopePropertiesDTO
 from src.entities.resource.dto import ResourcePropertiesDTO
 from src.entities.scope.exceptions import ScopeNotFoundException
 from src.entities.resource.exceptions import ResourceNotFoundException
+from src.entities.permit.exceptions import ObjectNotFoundException, ObjectTypeError
 from src.entities.user.exceptions import (
     UserNotFoundException,
     UserAlreadyExistException,
-    ObjectNotFoundException,
-    ObjectTypeError,
 )
 
 
@@ -44,7 +42,9 @@ class UserDAO(DAO):
 
     @classmethod
     async def update(cls, new_data: UserUpdateDTO):
-        user = await cls.node_type.find_one({"id_": new_data.id_, "attr": new_data.old_role})
+        user = await cls.node_type.find_one(
+            {"id_": new_data.id_, "attr": new_data.old_role}
+        )
         if new_data.new_role is not None:
             user.role = new_data.new_role
             await user.update()
@@ -87,11 +87,11 @@ class UserDAO(DAO):
         object_data: UserPropertiesDTO | ScopePropertiesDTO | ResourcePropertiesDTO,
         max_depth: int | None = None,
     ):
-        user = await cls.node_type.find_one(
-            user_data.model_dump(mode="json", by_alias=True)
-        )
+        user = await cls.node_type.find_one(user_data.model_dump())
         if user is None:
-            raise UserNotFoundException(str(user_data))
+            raise cls.node_type.not_found_exception(
+                user_id=user_data.id_, role=user_data.role
+            )
         object_class = None
         if isinstance(object_data, UserPropertiesDTO):
             object_class = User
@@ -101,11 +101,9 @@ class UserDAO(DAO):
             object_class = Resource
         else:
             raise ObjectTypeError(type(object_data))
-        object_ = await object_class.find_one(
-            object_data.model_dump(mode="json", by_alias=True)
-        )
+        object_ = await object_class.find_one(object_data.model_dump())
         if object_ is None:
-            raise ObjectNotFoundException(object=str(object_data))
+            raise object_class.not_found_exception(object_data.id_, object_data.attr)
         filters = {
             "$node": {
                 "$labels": object_._settings.labels,

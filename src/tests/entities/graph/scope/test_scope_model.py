@@ -3,6 +3,7 @@ import uuid
 import pytest
 
 from src.entities.scope.models import Scope
+from src.entities.scope.exceptions import ScopeAlreadyExistException
 
 
 @pytest.mark.asyncio
@@ -13,7 +14,10 @@ class TestScopeModel:
             attr="scope",
         )
         await scope.create()
-        with pytest.raises(ValueError, match=f"Scope {scope.id_} with attr {scope.name} already exists"):
+        with pytest.raises(
+            ScopeAlreadyExistException,
+            match=f"Scope {scope.id_} with name {scope.name} already exists",
+        ):
             scope_copy = Scope(
                 id_=scope.id_,
                 attr=scope.name,

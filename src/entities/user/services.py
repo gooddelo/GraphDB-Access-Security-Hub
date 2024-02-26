@@ -1,7 +1,5 @@
-import uuid
-
 from src.entities.user.dal import UserDAO
-from src.entities.user.dto import UserCreateDTO, UserUpdateDTO
+from src.entities.user.dto import UserCreateDTO, UserUpdateDTO, UserPropertiesDTO
 
 
 class UserService:
@@ -16,5 +14,5 @@ class UserService:
         return await cls.dao.update(user_data)
 
     @classmethod
-    async def delete(cls, user_id: uuid.UUID):
-        return await cls.dao.delete(user_id)
+    async def delete(cls, user_data: UserPropertiesDTO):
+        return await cls.dao.delete(user_data)

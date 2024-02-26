@@ -3,6 +3,7 @@ import uuid
 import pytest
 
 from src.entities.resource.models import Resource
+from src.entities.resource.exceptions import ResourceAlreadyExistException
 
 
 @pytest.mark.asyncio
@@ -14,8 +15,8 @@ class TestResourceModel:
         )
         await resource.create()
         with pytest.raises(
-            ValueError,
-            match=f"Resource {resource.id_} with attr {resource.type} already exists",
+            ResourceAlreadyExistException,
+            match=f"Resource {resource.id_} with type {resource.type} already exists",
         ):
             resource_copy = Resource(
                 id_=resource.id_,

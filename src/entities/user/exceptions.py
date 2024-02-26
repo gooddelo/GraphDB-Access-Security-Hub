@@ -1,17 +1,12 @@
-from src.entities.base import PermitDeniedException
-
-
-class UserNotFoundException(PermitDeniedException):
-    pass
-
-
-class ObjectNotFoundException(PermitDeniedException):
-    pass
-
-
-class ObjectTypeError(TypeError):
-    pass
-
-
 class UserAlreadyExistException(ValueError):
-    pass
+    def __init__(self, user_id, role):
+        self.user_id = user_id
+        self.role = role
+        super().__init__(f"User {self.user_id} with role {self.role} already exists")
+
+
+class UserNotFoundException(ValueError):
+    def __init__(self, user_id, role):
+        self.user_id = user_id
+        self.role = role
+        super().__init__(f"User {self.user_id} with role {self.role} doesn't exist")

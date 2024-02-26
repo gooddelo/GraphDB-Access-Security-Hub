@@ -3,6 +3,7 @@ import uuid
 import pytest
 
 from src.entities.user.models import User
+from src.entities.user.exceptions import UserAlreadyExistException
 
 
 @pytest.mark.asyncio
@@ -23,7 +24,7 @@ class TestUserModel:
             attr="user",
         )
         await user.create()
-        with pytest.raises(ValueError, match=f"User {user.id_} with attr {user.role} already exists"):
+        with pytest.raises(UserAlreadyExistException, match=f"User {user.id_} with role {user.role} already exists"):
             user_copy = User(
                 id_=user.id_,
                 attr=user.role,
