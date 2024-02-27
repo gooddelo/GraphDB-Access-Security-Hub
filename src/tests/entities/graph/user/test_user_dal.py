@@ -9,7 +9,7 @@ from src.entities.user.dal import UserDAO
 from src.entities.resource.dto import ResourcePropertiesDTO, ResourceCreateDTO
 from src.entities.scope.dto import ScopePropertiesDTO
 from src.entities.user.exceptions import UserNotFoundException
-from src.entities.permit.exceptions import ObjectNotFoundException, ObjectTypeError
+from src.entities.permit.exceptions import ObjectTypeError
 from src.entities.resource.exceptions import ResourceNotFoundException
 
 
@@ -119,6 +119,14 @@ class TestUserDAL:
         user = UserPropertiesDTO.model_validate(user_nodes[0])
         await UserDAO.delete(user)
         assert await User.count() == 0
+
+    async def test_delete_not_exist(self):
+        wrong_id = str(uuid.uuid4())
+        with pytest.raises(
+            UserNotFoundException,
+            match=f"User {wrong_id} with role not_exist doesn't exist",
+        ):
+            await UserDAO.delete(UserPropertiesDTO(id_=wrong_id, role="not_exist"))
 
     @pytest.mark.parametrize(
         "user_nodes,scope_nodes,resource_nodes",

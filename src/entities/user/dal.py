@@ -9,11 +9,7 @@ from src.entities.scope.dto import ScopePropertiesDTO
 from src.entities.resource.dto import ResourcePropertiesDTO
 from src.entities.scope.exceptions import ScopeNotFoundException
 from src.entities.resource.exceptions import ResourceNotFoundException
-from src.entities.permit.exceptions import ObjectNotFoundException, ObjectTypeError
-from src.entities.user.exceptions import (
-    UserNotFoundException,
-    UserAlreadyExistException,
-)
+from src.entities.permit.exceptions import ObjectTypeError
 
 
 class UserDAO(DAO):
@@ -78,7 +74,12 @@ class UserDAO(DAO):
     @classmethod
     async def delete(cls, user_data: UserPropertiesDTO):
         user = await cls.node_type.find_one(user_data.model_dump())
-        await user.delete()
+        try:
+            await user.delete()
+        except AttributeError:
+            raise cls.node_type.not_found_exception(
+                user_id=user_data.id_, role=user_data.role
+            )
 
     @classmethod
     async def is_reachable(

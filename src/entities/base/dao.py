@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import Type
+from typing import Type, ClassVar
 
 from pyneo4j_ogm import NodeModel  # type: ignore
 
 
 class DAO(ABC):
-    node_type: Type[NodeModel]
+    node_type: ClassVar[Type[NodeModel]]
 
     @classmethod
     @abstractmethod
