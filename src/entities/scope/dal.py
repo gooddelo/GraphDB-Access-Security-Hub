@@ -1,10 +1,6 @@
-import uuid
-
 from src.entities.base import DAO
 from src.entities.user.models import User
-from src.entities.user.dto import UserPropertiesDTO
 from src.entities.resource.models import Resource
-from src.entities.resource.dto import ResourcePropertiesDTO
 from src.entities.scope.dto import (
     ScopeCreateDTO,
     ScopePropertiesDTO,
@@ -79,6 +75,9 @@ class ScopeDAO(DAO):
                 await scope.scopes.disconnect(scope_)
 
     @classmethod
-    async def delete(self, scope_data: ScopePropertiesDTO):
-        scope = await self.node_type.find_one(scope_data.model_dump())
-        await scope.delete()
+    async def delete(cls, scope_data: ScopePropertiesDTO):
+        scope = await cls.node_type.find_one(scope_data.model_dump())
+        try:
+            await scope.delete()
+        except AttributeError:
+            raise cls.node_type.not_found_exception(scope_data.id_, scope_data.name)

@@ -7,6 +7,7 @@ from src.entities.scope.dto import ScopeCreateDTO, ScopePropertiesDTO, ScopeUpda
 from src.entities.scope.dal import ScopeDAO
 from src.entities.user.dto import UserPropertiesDTO
 from src.entities.resource.dto import ResourcePropertiesDTO
+from src.entities.scope.exceptions import ScopeNotFoundException
 
 
 @pytest.mark.asyncio
@@ -158,3 +159,11 @@ class TestScopeDAL:
         scope = scope_nodes[0]
         await ScopeDAO.delete(ScopePropertiesDTO.model_validate(scope))
         assert await Scope.find_one({"id_": scope.id_, "attr": scope.name}) is None
+
+    async def test_delete_not_exist(self):
+        wrong_id = str(uuid.uuid4())
+        with pytest.raises(
+            ScopeNotFoundException,
+            match=f"Scope {wrong_id} with name not_exist doesn't exist",
+        ):
+            await ScopeDAO.delete(ScopePropertiesDTO(id_=wrong_id, name="not_exist"))
