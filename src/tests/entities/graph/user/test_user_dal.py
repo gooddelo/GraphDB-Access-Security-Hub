@@ -114,6 +114,14 @@ class TestUserDAL:
         connected_resources = await user.resources.find_connected_nodes()
         assert set(connected_resources) == set(new_resources)
 
+    async def test_update_not_exist(self):
+        wrong_id = str(uuid.uuid4())
+        with pytest.raises(
+            UserNotFoundException,
+            match=f"User {wrong_id} with role not_exist doesn't exist",
+        ):
+            await UserDAO.update(UserUpdateDTO(id_=wrong_id, old_role="not_exist", new_role="admin"))
+
     @pytest.mark.parametrize("user_nodes", ([uuid.uuid4()],), indirect=True)
     async def test_delete(self, user_nodes):
         user = UserPropertiesDTO.model_validate(user_nodes[0])

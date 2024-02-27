@@ -41,6 +41,8 @@ class UserDAO(DAO):
         user = await cls.node_type.find_one(
             {"id_": new_data.id_, "attr": new_data.old_role}
         )
+        if user is None:
+            raise cls.node_type.not_found_exception(user_id=new_data.id_, role=new_data.old_role)
         if new_data.new_role is not None:
             user.role = new_data.new_role
             await user.update()

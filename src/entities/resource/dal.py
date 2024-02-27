@@ -33,6 +33,8 @@ class ResourceDAO(DAO):
         resource = await cls.node_type.find_one(
             {"id_": new_data.id_, "attr": new_data.old_type}
         )
+        if resource is None:
+            raise cls.node_type.not_found_exception(resource_id=new_data.id_, type=new_data.old_type)
         if new_data.new_type is not None:
             resource.type = new_data.new_type
             await resource.update()

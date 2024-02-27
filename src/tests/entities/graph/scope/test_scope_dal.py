@@ -154,6 +154,14 @@ class TestScopeDAL:
         connected_scopes = await main_scope.scopes.find_connected_nodes()
         assert set(connected_scopes) == set(new_scopes)
 
+    async def test_update_not_exist(self):
+        wrong_id = str(uuid.uuid4())
+        with pytest.raises(
+            ScopeNotFoundException,
+            match=f"Scope {wrong_id} with name not_exist doesn't exist",
+        ):
+            await ScopeDAO.update(ScopeUpdateDTO(id_=wrong_id, old_name="not_exist", new_name="new_name"))
+
     @pytest.mark.parametrize("scope_nodes", ([uuid.uuid4()],), indirect=True)
     async def test_delete(self, scope_nodes):
         scope = scope_nodes[0]

@@ -107,6 +107,14 @@ class TestResourceDAL:
         connected_scopes = await resource.scopes.find_connected_nodes()
         assert set(connected_scopes) == set(new_scopes)
 
+    async def test_update_not_exist(self):
+        wrong_id = str(uuid.uuid4())
+        with pytest.raises(
+            ResourceNotFoundException,
+            match=f"Resource {wrong_id} with type not_exist doesn't exist",
+        ):
+            await ResourceDAO.update(ResourceUpdateDTO(id_=wrong_id, old_type="not_exist", new_type="new_type"))
+
     @pytest.mark.parametrize(
         "resource_nodes,user_nodes,scope_nodes",
         (([uuid.uuid4()], [uuid.uuid4()], [uuid.uuid4()]),),
