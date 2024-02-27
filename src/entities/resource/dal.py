@@ -64,4 +64,7 @@ class ResourceDAO(DAO):
     @classmethod
     async def delete(cls, resource_data: ResourcePropertiesDTO):
         resource = await cls.node_type.find_one(resource_data.model_dump())
-        await resource.delete()
+        try:
+            await resource.delete()
+        except AttributeError:
+            raise cls.node_type.not_found_exception(resource_data.id_, resource_data.type)

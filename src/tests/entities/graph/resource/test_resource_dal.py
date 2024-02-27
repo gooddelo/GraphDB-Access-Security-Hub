@@ -8,6 +8,7 @@ from src.entities.resource.models import Resource
 from src.entities.resource.dal import ResourceDAO
 from src.entities.user.dto import UserPropertiesDTO
 from src.entities.scope.dto import ScopePropertiesDTO
+from src.entities.resource.exceptions import ResourceNotFoundException
 from src.entities.resource.dto import (
     ResourceCreateDTO,
     ResourcePropertiesDTO,
@@ -125,3 +126,11 @@ class TestResourceDAL:
         assert await Scope.find_one({"id_": scope.id_, "attr": scope.name}) is not None
         assert len(await user.resources.find_connected_nodes()) == 0
         assert len(await scope.resources.find_connected_nodes()) == 0
+
+    async def test_delete_not_exist(self):
+        wrong_id = str(uuid.uuid4())
+        with pytest.raises(
+            ResourceNotFoundException,
+            match=f"Resource {wrong_id} with type not_exist doesn't exist",
+        ):
+            await ResourceDAO.delete(ResourcePropertiesDTO(id_=wrong_id, type="not_exist"))
