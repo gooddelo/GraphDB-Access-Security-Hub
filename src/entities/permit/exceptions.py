@@ -11,3 +11,11 @@ class ObjectNotFoundException(PermitDeniedException):
 
 class ObjectTypeError(TypeError):
     pass
+
+
+class SubjectRoleNotConfiguredError(PermitDeniedException):
+    pass
+
+
+class ActionNotAllowedError(PermitDeniedException):
+    pass

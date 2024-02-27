@@ -7,8 +7,8 @@ import yaml
 
 from src.entities.policy.dto import ConditionsDTO
 from src.entities.policy.exceptions import (
-    SubjectRoleNotConfiguredError,
-    ActionNotAllowedError,
+    RoleNotConfiguredError,
+    ActionNotConfiguredError,
 )
 
 POLICY_PATH = Path(__file__).parent.parent.parent.parent / "policy" / "policy.yml"
@@ -47,6 +47,6 @@ class PolicyDAO:
             try:
                 cls.policy[role]
             except KeyError:
-                raise SubjectRoleNotConfiguredError(role, object, action)
+                raise RoleNotConfiguredError(role)
             else:
-                raise ActionNotAllowedError(role, object, action)
+                raise ActionNotConfiguredError(role, object, action)

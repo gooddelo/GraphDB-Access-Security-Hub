@@ -8,9 +8,15 @@ from src.entities.base import PermitDeniedException
 from src.entities.user.exceptions import UserNotFoundException
 from src.entities.resource.exceptions import ResourceNotFoundException
 from src.entities.scope.exceptions import ScopeAlreadyExistException
+from src.entities.policy.exceptions import (
+    RoleNotConfiguredError,
+    ActionNotConfiguredError,
+)
 from src.entities.permit.exceptions import (
     SubjectNotFoundException,
     ObjectNotFoundException,
+    SubjectRoleNotConfiguredError,
+    ActionNotAllowedError,
 )
 
 
@@ -23,9 +29,22 @@ async def get_permit(data: PermitRequestDTO):
     elif isinstance(data.object, ResourcePropertiesDTO):
         object_attr = data.object.type
     try:
-        permit_conditions = await PolicyDAO.get_permit_conditions(
-            data.subject.role, object_attr, data.action
-        )
+        try:
+            permit_conditions = await PolicyDAO.get_permit_conditions(
+                data.subject.role, object_attr, data.action
+            )
+        except RoleNotConfiguredError:
+            raise SubjectRoleNotConfiguredError(
+                subject=str(data.subject),
+                object=str(data.object),
+                action=data.action,
+            )
+        except ActionNotConfiguredError:
+            raise ActionNotAllowedError(
+                subject=str(data.subject),
+                object=str(data.object),
+                action=data.action,
+            )
         try:
             permit = await UserDAO.is_reachable(
                 data.subject, data.object, **permit_conditions.model_dump(by_alias=True)
@@ -33,11 +52,15 @@ async def get_permit(data: PermitRequestDTO):
         except UserNotFoundException as e:
             if e.user_id == data.subject.id_:
                 raise SubjectNotFoundException(
-                    subject=str(data.subject), object=str(data.object), action=data.action
+                    subject=str(data.subject),
+                    object=str(data.object),
+                    action=data.action,
                 )
             else:
                 raise ObjectNotFoundException(
-                    subject=str(data.subject), object=str(data.object), action=data.action
+                    subject=str(data.subject),
+                    object=str(data.object),
+                    action=data.action,
                 )
         except (ScopeAlreadyExistException, ResourceNotFoundException):
             raise ObjectNotFoundException(

@@ -4,8 +4,8 @@ import pytest_asyncio
 from src.entities.policy.dal import PolicyDAO
 from src.entities.policy.dto import ConditionsDTO
 from src.entities.policy.exceptions import (
-    SubjectRoleNotConfiguredError,
-    ActionNotAllowedError,
+    RoleNotConfiguredError,
+    ActionNotConfiguredError,
 )
 
 
@@ -45,7 +45,9 @@ class TestPolicyDAL:
 
     async def test_get_permit_conditions_role_not_in_policy(self):
         await PolicyDAO.load()
-        with pytest.raises(SubjectRoleNotConfiguredError, match="not_exist"):
+        with pytest.raises(
+            RoleNotConfiguredError, match="Role 'not_exist' is not configured in policy"
+        ):
             await PolicyDAO.get_permit_conditions(
                 "not_exist", "test_resource", "create"
             )
@@ -53,14 +55,15 @@ class TestPolicyDAL:
     async def test_get_permit_conditions_type_not_in_policy(self):
         await PolicyDAO.load()
         with pytest.raises(
-            ActionNotAllowedError, match="Subj: owner; Obj: not_exist; Act: create;"
+            ActionNotConfiguredError,
+            match="Action 'create' is not configured for role 'owner' on object type 'not_exist'",
         ):
             await PolicyDAO.get_permit_conditions("owner", "not_exist", "create")
 
     async def test_get_permit_conditions_action_not_in_policy(self):
         await PolicyDAO.load()
         with pytest.raises(
-            ActionNotAllowedError,
-            match="Subj: owner; Obj: test_resource; Act: not_exist;",
+            ActionNotConfiguredError,
+            match="Action 'not_exist' is not configured for role 'owner' on object type 'test_resource'",
         ):
             await PolicyDAO.get_permit_conditions("owner", "test_resource", "not_exist")
