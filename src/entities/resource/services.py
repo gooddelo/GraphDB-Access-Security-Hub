@@ -1,7 +1,9 @@
-import uuid
-
 from src.entities.resource.dal import ResourceDAO
-from src.entities.resource.dto import ResourceCreateDTO, ResourceUpdateDTO
+from src.entities.resource.dto import (
+    ResourceCreateDTO,
+    ResourceUpdateDTO,
+    ResourcePropertiesDTO,
+)
 
 
 class ResourceService:
@@ -16,5 +18,5 @@ class ResourceService:
         return await cls.dao.update(resource_data)
 
     @classmethod
-    async def delete(cls, resource_id: uuid.UUID):
-        return await cls.dao.delete(resource_id)
+    async def delete(cls, resource_data: ResourcePropertiesDTO):
+        return await cls.dao.delete(resource_data)
