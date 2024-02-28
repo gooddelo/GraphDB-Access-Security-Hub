@@ -3,7 +3,7 @@ import uuid
 import pytest
 import pytest_asyncio
 
-from src.entities.permit.services import get_permit
+from src.entities.permit.services import PermitService
 from src.entities.permit.dto import PermitRequestDTO
 from src.entities.policy.dal import PolicyDAO
 from src.entities.user.dto import UserPropertiesDTO
@@ -50,7 +50,7 @@ class TestPermitServices:
             object=ResourcePropertiesDTO.model_validate(company_resource),
             action="read",
         )
-        permit = await get_permit(data)
+        permit = await PermitService.get_permit(data)
         assert permit is True
 
     @pytest.mark.parametrize(
@@ -84,7 +84,7 @@ class TestPermitServices:
             object=ScopePropertiesDTO.model_validate(company),
             action="read",
         )
-        permit = await get_permit(data)
+        permit = await PermitService.get_permit(data)
         assert permit is True
 
     @pytest.mark.parametrize(
@@ -118,7 +118,7 @@ class TestPermitServices:
             object=UserPropertiesDTO.model_validate(employee),
             action="delete",
         )
-        permit = await get_permit(data)
+        permit = await PermitService.get_permit(data)
         assert permit is True
 
     @pytest.mark.parametrize(
@@ -154,7 +154,7 @@ class TestPermitServices:
             object=ResourcePropertiesDTO.model_validate(personal_resource),
             action="update",
         )
-        permit = await get_permit(data)
+        permit = await PermitService.get_permit(data)
         assert permit is True
 
     @pytest.mark.parametrize(
@@ -190,7 +190,7 @@ class TestPermitServices:
             object=ScopePropertiesDTO.model_validate(company),
             action="read",
         )
-        permit = await get_permit(data)
+        permit = await PermitService.get_permit(data)
         assert permit is False
 
     @pytest.mark.parametrize(
@@ -226,7 +226,7 @@ class TestPermitServices:
             object=ScopePropertiesDTO.model_validate(company),
             action="read",
         )
-        permit = await get_permit(data)
+        permit = await PermitService.get_permit(data)
         assert permit is False
 
     @pytest.mark.parametrize(
@@ -262,7 +262,7 @@ class TestPermitServices:
             object=ScopePropertiesDTO.model_validate(company),
             action="read",
         )
-        permit = await get_permit(data)
+        permit = await PermitService.get_permit(data)
         assert permit is False
 
     @pytest.mark.parametrize(
@@ -300,7 +300,7 @@ class TestPermitServices:
             ),
             action="read",
         )
-        permit = await get_permit(data)
+        permit = await PermitService.get_permit(data)
         assert permit is False
 
     @pytest.mark.parametrize(
@@ -336,7 +336,7 @@ class TestPermitServices:
             object=ResourcePropertiesDTO(id_=str(uuid.uuid4()), type="not_exist"),
             action="read",
         )
-        permit = await get_permit(data)
+        permit = await PermitService.get_permit(data)
         assert permit is False
 
     @pytest.mark.parametrize(
@@ -372,5 +372,5 @@ class TestPermitServices:
             object=ScopePropertiesDTO.model_validate(company),
             action="not_exist",
         )
-        permit = await get_permit(data)
+        permit = await PermitService.get_permit(data)
         assert permit is False

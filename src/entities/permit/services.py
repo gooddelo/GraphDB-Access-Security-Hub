@@ -20,52 +20,58 @@ from src.entities.permit.exceptions import (
 )
 
 
-async def get_permit(data: PermitRequestDTO):
-    object_attr = None
-    if isinstance(data.object, UserPropertiesDTO):
-        object_attr = data.object.role
-    elif isinstance(data.object, ScopePropertiesDTO):
-        object_attr = data.object.name
-    elif isinstance(data.object, ResourcePropertiesDTO):
-        object_attr = data.object.type
-    try:
+class PermitService:
+    @classmethod
+    async def get_permit(cls, data: PermitRequestDTO):
+        object_attr = None
+        if isinstance(data.object, UserPropertiesDTO):
+            object_attr = data.object.role
+        elif isinstance(data.object, ScopePropertiesDTO):
+            object_attr = data.object.name
+        elif isinstance(data.object, ResourcePropertiesDTO):
+            object_attr = data.object.type
         try:
-            permit_conditions = await PolicyDAO.get_permit_conditions(
-                data.subject.role, object_attr, data.action
-            )
-        except RoleNotConfiguredError:
-            raise SubjectRoleNotConfiguredError(
-                subject=str(data.subject),
-                object=str(data.object),
-                action=data.action,
-            )
-        except ActionNotConfiguredError:
-            raise ActionNotAllowedError(
-                subject=str(data.subject),
-                object=str(data.object),
-                action=data.action,
-            )
-        try:
-            permit = await UserDAO.is_reachable(
-                data.subject, data.object, **permit_conditions.model_dump(by_alias=True)
-            )
-        except UserNotFoundException as e:
-            if e.user_id == data.subject.id_:
-                raise SubjectNotFoundException(
+            try:
+                permit_conditions = await PolicyDAO.get_permit_conditions(
+                    data.subject.role, object_attr, data.action
+                )
+            except RoleNotConfiguredError:
+                raise SubjectRoleNotConfiguredError(
                     subject=str(data.subject),
                     object=str(data.object),
                     action=data.action,
                 )
-            else:
+            except ActionNotConfiguredError:
+                raise ActionNotAllowedError(
+                    subject=str(data.subject),
+                    object=str(data.object),
+                    action=data.action,
+                )
+            try:
+                permit = await UserDAO.is_reachable(
+                    data.subject,
+                    data.object,
+                    **permit_conditions.model_dump(by_alias=True),
+                )
+            except UserNotFoundException as e:
+                if e.user_id == data.subject.id_:
+                    raise SubjectNotFoundException(
+                        subject=str(data.subject),
+                        object=str(data.object),
+                        action=data.action,
+                    )
+                else:
+                    raise ObjectNotFoundException(
+                        subject=str(data.subject),
+                        object=str(data.object),
+                        action=data.action,
+                    )
+            except (ScopeAlreadyExistException, ResourceNotFoundException):
                 raise ObjectNotFoundException(
                     subject=str(data.subject),
                     object=str(data.object),
                     action=data.action,
                 )
-        except (ScopeAlreadyExistException, ResourceNotFoundException):
-            raise ObjectNotFoundException(
-                subject=str(data.subject), object=str(data.object), action=data.action
-            )
-    except PermitDeniedException:
-        return False
-    return permit
+        except PermitDeniedException:
+            return False
+        return permit
