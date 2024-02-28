@@ -40,10 +40,12 @@ class ResourceDAO(DAO):
             await resource.update()
         if new_data.new_users is not None:
             old_users = set(await resource.users.find_connected_nodes())
-            new_users = {
-                await User.find_one(user.model_dump())
-                for user in new_data.new_users
-            }
+            new_users = set()
+            for user_data in new_data.new_users:
+                user = await User.find_one(user_data.model_dump())
+                if user is None:
+                    raise User.not_found_exception(user_id=user_data.id_, role=user_data.role)
+                new_users.add(user)
             connect_users = new_users - old_users
             disconnect_users = old_users - new_users
             for user in connect_users:
@@ -56,6 +58,12 @@ class ResourceDAO(DAO):
                 await Scope.find_one(scope.model_dump())
                 for scope in new_data.new_scopes
             }
+            new_scopes = set()
+            for scope_data in new_data.new_scopes:
+                scope = await Scope.find_one(scope_data.model_dump())
+                if scope is None:
+                    raise Scope.not_found_exception(scope_id=scope_data.id_, name=scope_data.name)
+                new_scopes.add(scope)
             connect_scopes = new_scopes - old_scopes
             disconnect_scopes = old_scopes - new_scopes
             for scope in connect_scopes:

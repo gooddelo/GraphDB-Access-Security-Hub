@@ -9,6 +9,8 @@ from src.entities.resource.dal import ResourceDAO
 from src.entities.user.dto import UserPropertiesDTO
 from src.entities.scope.dto import ScopePropertiesDTO
 from src.entities.resource.exceptions import ResourceNotFoundException
+from src.entities.scope.exceptions import ScopeNotFoundException
+from src.entities.user.exceptions import UserNotFoundException
 from src.entities.resource.dto import (
     ResourceCreateDTO,
     ResourcePropertiesDTO,
@@ -101,11 +103,67 @@ class TestResourceDAL:
         new_data = ResourceUpdateDTO[UserPropertiesDTO, ScopePropertiesDTO](
             id_=resource.id_,
             old_type=resource.type,
-            new_scopes=[ScopePropertiesDTO.model_validate(scope) for scope in new_scopes],
+            new_scopes=[
+                ScopePropertiesDTO.model_validate(scope) for scope in new_scopes
+            ],
         )
         await ResourceDAO.update(new_data)
         connected_scopes = await resource.scopes.find_connected_nodes()
         assert set(connected_scopes) == set(new_scopes)
+
+    @pytest.mark.parametrize(
+        "resource_nodes,user_nodes",
+        (
+            ([uuid.uuid4()], []),
+            ([uuid.uuid4()], [uuid.uuid4(), uuid.uuid4(), uuid.uuid4()]),
+        ),
+        indirect=True,
+    )
+    async def test_update_wrong_users(self, resource_nodes, user_nodes):
+        resource = resource_nodes[0]
+        old_users = user_nodes
+        for user in old_users:
+            await resource.users.connect(user)
+        new_data = ResourceUpdateDTO[UserPropertiesDTO, ScopePropertiesDTO](
+            id_=resource.id_,
+            old_type=resource.type,
+            new_users=[
+                UserPropertiesDTO(id_=str(uuid.uuid4()), role="not exist"),
+                UserPropertiesDTO(id_=str(uuid.uuid4()), role="not exist"),
+            ],
+        )
+        with pytest.raises(
+            UserNotFoundException,
+            match=f"User {new_data.new_users[0].id_} with role {new_data.new_users[0].role} doesn't exist",
+        ):
+            await ResourceDAO.update(new_data)
+
+    @pytest.mark.parametrize(
+        "resource_nodes,scope_nodes",
+        (
+            ([uuid.uuid4()], []),
+            ([uuid.uuid4()], [uuid.uuid4(), uuid.uuid4(), uuid.uuid4()]),
+        ),
+        indirect=True,
+    )
+    async def test_update_wrong_scopes(self, resource_nodes, scope_nodes):
+        resource = resource_nodes[0]
+        old_scopes = scope_nodes
+        for scope in old_scopes:
+            await resource.scopes.connect(scope)
+        new_data = ResourceUpdateDTO[UserPropertiesDTO, ScopePropertiesDTO](
+            id_=resource.id_,
+            old_type=resource.type,
+            new_scopes=[
+                ScopePropertiesDTO(id_=str(uuid.uuid4()), name="not exist"),
+                ScopePropertiesDTO(id_=str(uuid.uuid4()), name="not exist"),
+            ],
+        )
+        with pytest.raises(
+            ScopeNotFoundException,
+            match=f"Scope {new_data.new_scopes[0].id_} with name {new_data.new_scopes[0].name} doesn't exist",
+        ):
+            await ResourceDAO.update(new_data)
 
     async def test_update_not_exist(self):
         wrong_id = str(uuid.uuid4())
@@ -113,7 +171,11 @@ class TestResourceDAL:
             ResourceNotFoundException,
             match=f"Resource {wrong_id} with type not_exist doesn't exist",
         ):
-            await ResourceDAO.update(ResourceUpdateDTO(id_=wrong_id, old_type="not_exist", new_type="new_type"))
+            await ResourceDAO.update(
+                ResourceUpdateDTO(
+                    id_=wrong_id, old_type="not_exist", new_type="new_type"
+                )
+            )
 
     @pytest.mark.parametrize(
         "resource_nodes,user_nodes,scope_nodes",
@@ -127,9 +189,7 @@ class TestResourceDAL:
         await resource.users.connect(user)
         await resource.scopes.connect(scope)
         await ResourceDAO.delete(ResourcePropertiesDTO.model_validate(resource))
-        assert (
-            await Resource.find_one(resource.model_dump()) is None
-        )
+        assert await Resource.find_one(resource.model_dump()) is None
         assert await User.find_one({"id_": user.id_, "attr": user.role}) is not None
         assert await Scope.find_one({"id_": scope.id_, "attr": scope.name}) is not None
         assert len(await user.resources.find_connected_nodes()) == 0
@@ -141,4 +201,6 @@ class TestResourceDAL:
             ResourceNotFoundException,
             match=f"Resource {wrong_id} with type not_exist doesn't exist",
         ):
-            await ResourceDAO.delete(ResourcePropertiesDTO(id_=wrong_id, type="not_exist"))
+            await ResourceDAO.delete(
+                ResourcePropertiesDTO(id_=wrong_id, type="not_exist")
+            )
