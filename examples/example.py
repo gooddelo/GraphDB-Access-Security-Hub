@@ -57,7 +57,7 @@ async def main():
         }
         company_resource_data = {
             "id_": str(uuid.uuid4()),
-            "type": "commpany_resource",
+            "type": "company_resource",
             "users": [],
             "scopes": [
                 {
@@ -68,7 +68,7 @@ async def main():
         }
         employee_data = {
             "id_": str(uuid.uuid4()),
-            "role": "owner",
+            "role": "empoyee",
             "resources": [],
             "belong_scopes": [
                 {

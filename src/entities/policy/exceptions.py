@@ -1,7 +1,10 @@
+from src.entities.base import LOGGER
+
 class RoleNotConfiguredError(Exception):
     def __init__(self, role):
         self.role = role
         super().__init__(f"Role '{self.role}' is not configured in policy")
+        LOGGER.error(self)
 
 
 class ActionNotConfiguredError(Exception):
@@ -12,3 +15,4 @@ class ActionNotConfiguredError(Exception):
         super().__init__(
             f"Action '{self.action}' is not configured for role '{self.role}' on object type '{self.type}'"
         )
+        LOGGER.error(self)

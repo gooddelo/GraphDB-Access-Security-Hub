@@ -1,4 +1,4 @@
-from src.entities.base import PermitDeniedException
+from src.entities.base import PermitDeniedException, LOGGER
 
 
 class SubjectNotFoundException(PermitDeniedException):
@@ -10,8 +10,9 @@ class ObjectNotFoundException(PermitDeniedException):
 
 
 class ObjectTypeError(TypeError):
-    pass
-
+    def __init__(self, *args):
+        super().__init__(*args)
+        LOGGER.error(self)
 
 class SubjectRoleNotConfiguredError(PermitDeniedException):
     pass
