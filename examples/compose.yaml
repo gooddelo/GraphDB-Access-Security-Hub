@@ -36,7 +36,7 @@ services:
       context: ../
       dockerfile: ../Dockerfile
     env_file:
-      - ../.env
+      - ./.env
     command:
       faststream run src.api.amqp.main:app
     depends_on:
