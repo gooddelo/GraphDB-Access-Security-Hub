@@ -12,8 +12,8 @@ ScopePropertiesDTO = TypeVar("ScopePropertiesDTO", bound=PropertiesDTO)
 class ResourceCreateDTO(DTO, Generic[UserPropertiesDTO, ScopePropertiesDTO]):
     id_: str
     type: str
-    users: List[UserPropertiesDTO]
-    scopes: List[ScopePropertiesDTO]
+    users: List[UserPropertiesDTO] = Field(default_factory=list)
+    scopes: List[ScopePropertiesDTO] = Field(default_factory=list)
 
 
 class ResourceUpdateDTO(DTO, Generic[UserPropertiesDTO, ScopePropertiesDTO]):

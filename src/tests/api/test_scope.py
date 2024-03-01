@@ -31,12 +31,12 @@ class TestScopeAPI:
         scope_nodes,
         resource_nodes,
     ):
-        owner = UserPropertiesDTO.model_validate(user_nodes.pop())
-        users = [UserPropertiesDTO.model_validate(user) for user in user_nodes]
-        scopes = [{"id_": scope.id_, "name": scope.attr} for scope in scope_nodes]
+        owner = user_nodes.pop()
+        owner = {"id_": owner.id_, "role": owner.role}
+        users = [{"id_": user.id_, "role": user.role} for user in user_nodes]
+        scopes = [{"id_": scope.id_, "name": scope.name} for scope in scope_nodes]
         resources = [
-            ResourcePropertiesDTO.model_validate(resource)
-            for resource in resource_nodes
+            {"id_": resource.id_, "type": resource.type} for resource in resource_nodes
         ]
         data = {
             "id_": str(uuid.uuid4()),
@@ -80,11 +80,11 @@ class TestScopeAPI:
         new_users = user_nodes[len(user_nodes) // 2 :]
         for user in old_users:
             await scope.users.connect(user)
-        new_data = ScopeUpdateDTO[UserPropertiesDTO, ResourcePropertiesDTO](
-            id_=scope.id_,
-            old_name=scope.name,
-            new_users=[UserPropertiesDTO.model_validate(user) for user in new_users],
-        )
+        new_data = {
+            "id_": scope.id_,
+            "old_name": scope.name,
+            "new_users": [{"id_": user.id_, "role": user.role} for user in new_users],
+        }
         async with TestRabbitBroker(broker) as test_brocker:
             result = await test_brocker.publish(
                 message=new_data,
