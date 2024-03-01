@@ -107,15 +107,15 @@ class TestPermitServices:
         company, selling_point = scope_nodes
         company_resource, selling_point_resource, personal_resource = resource_nodes
         await company.owner.connect(owner)
-        await company.scopes.connect(selling_point)
+        await selling_point.scopes.connect(company)
         await company.resources.connect(company_resource)
         await selling_point.resources.connect(selling_point_resource)
         await selling_point.users.connect(employee)
         await employee.own_scopes.connect(selling_point)
         await employee.resources.connect(personal_resource)
         data = PermitRequestDTO(
-            subject=UserPropertiesDTO.model_validate(owner),
-            object=UserPropertiesDTO.model_validate(employee),
+            subject={"id_": owner.id_, "role": owner.role},
+            object={"id_": employee.id_, "role": employee.role},
             action="delete",
         )
         permit = await PermitService.get_permit(data)

@@ -9,9 +9,6 @@ from src.api.amqp.v1.queues import ResourceQueuesV1
 from src.entities.user.models import User
 from src.entities.scope.models import Scope
 from src.entities.resource.models import Resource
-from src.entities.user.dto import UserPropertiesDTO
-from src.entities.scope.dto import ScopePropertiesDTO
-from src.entities.resource.dto import ResourceCreateDTO, ResourceUpdateDTO
 
 
 @pytest.mark.asyncio
@@ -31,12 +28,12 @@ class TestResourcesAPI:
         user_nodes,
         scope_nodes,
     ):
-        data = ResourceCreateDTO(
-            id_=str(uuid.uuid4()),
-            type="resource",
-            users=[UserPropertiesDTO.model_validate(user) for user in user_nodes],
-            scopes=[ScopePropertiesDTO.model_validate(scope) for scope in scope_nodes],
-        )
+        data = {
+            "id_": str(uuid.uuid4()),
+            "type": "resource",
+            "users": [{"id_": user.id_, "role": user.role} for user in user_nodes],
+            "scopes": [{"id_": scope.id_, "name": scope.name} for scope in scope_nodes],
+        }
         async with TestRabbitBroker(broker) as test_brocker:
             result = await test_brocker.publish(
                 message=data,
@@ -45,7 +42,7 @@ class TestResourcesAPI:
             )
         assert result is None
         resources = await Resource.count()
-        resource = await Resource.find_one({"id_": data.id_, "attr": data.type})
+        resource = await Resource.find_one({"id_": data["id_"], "attr": data["type"]})
         assert resources == 1
 
         connected_users = await resource.users.find_connected_nodes()
@@ -67,11 +64,11 @@ class TestResourcesAPI:
         new_users = user_nodes[len(user_nodes) // 2 :]
         for user in old_users:
             await resource.users.connect(user)
-        new_data = ResourceUpdateDTO[UserPropertiesDTO, ScopePropertiesDTO](
-            id_=resource.id_,
-            old_type=resource.type,
-            new_users=[UserPropertiesDTO.model_validate(user) for user in new_users],
-        )
+        new_data = {
+            "id_": resource.id_,
+            "old_type": resource.type,
+            "new_users": [{"id_": user.id_, "role": user.role} for user in new_users],
+        }
         async with TestRabbitBroker(broker) as test_brocker:
             result = await test_brocker.publish(
                 message=new_data,
@@ -93,7 +90,7 @@ class TestResourcesAPI:
         scope = scope_nodes[0]
         await resource.users.connect(user)
         await resource.scopes.connect(scope)
-        data = {"id_": resource.id_, "type": resource.attr}
+        data = {"id_": resource.id_, "type": resource.type}
         async with TestRabbitBroker(broker) as test_brocker:
             result = await test_brocker.publish(
                 message=data,
