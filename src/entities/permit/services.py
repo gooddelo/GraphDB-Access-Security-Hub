@@ -25,7 +25,10 @@ class PermitService:
     async def get_permit(cls, data: PermitRequestDTO):
         object_attr = None
         if isinstance(data.object, UserPropertiesDTO):
-            object_attr = data.object.role
+            if data.subject == data.object:
+                object_attr = "self"
+            else:
+                object_attr = data.object.role
         elif isinstance(data.object, ScopePropertiesDTO):
             object_attr = data.object.name
         elif isinstance(data.object, ResourcePropertiesDTO):
@@ -35,6 +38,8 @@ class PermitService:
                 permit_conditions = await PolicyDAO.get_permit_conditions(
                     data.subject.role, object_attr, data.action
                 )
+                if object_attr == "self":
+                    return True
             except RoleNotConfiguredError:
                 raise SubjectRoleNotConfiguredError(
                     subject=str(data.subject),

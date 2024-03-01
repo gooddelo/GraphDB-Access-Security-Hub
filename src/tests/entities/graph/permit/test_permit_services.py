@@ -374,3 +374,18 @@ class TestPermitServices:
         )
         permit = await PermitService.get_permit(data)
         assert permit is False
+
+    @pytest.mark.parametrize(
+        "user_nodes",
+        ([(uuid.uuid4(), "owner")],),
+        indirect=True,
+    )
+    async def test_get_permit_self(self, user_nodes):
+        owner = user_nodes[0]
+        data = PermitRequestDTO(
+            subject=UserPropertiesDTO.model_validate(owner),
+            object=UserPropertiesDTO.model_validate(owner),
+            action="create_company",
+        )
+        permit = await PermitService.get_permit(data)
+        assert permit is True
