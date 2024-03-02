@@ -40,9 +40,10 @@ the the next workflow is concidered:
 - [ ] Optionaly return exceptions by RPC
 - [ ] Add API methods for updating policy in runtime
 - [ ] Implement HTTP API
+- [ ] Implement custom CLI
 - [ ] Support other brockers, that are supported by [`FastStream`](https://faststream.airt.ai/latest/)
 - [ ] Extend policy with ABAC featues: permit/deny only if subject/object has/doesn't has attr, combinations of attrs, etc.
-- [ ] Extend policy with graph agnostic policyes like rules for any user, rules for all objects of this type, etc.
+- [ ] Extend policy with graph-agnostic policies like rules for any user, rules for all objects of this type, etc.
 
 ## Policy File Reference
 
@@ -55,6 +56,7 @@ the the next workflow is concidered:
 ## Deploy
 
 ...
+<!-- We recommend using GASH as  -->
 
 ## Testing
 
