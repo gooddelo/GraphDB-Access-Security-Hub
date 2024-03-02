@@ -20,14 +20,29 @@ GASH is an user authorization tool for microservices, highly inspired by such te
 ## Why GASH?
 
 ...
+<!-- The idea of this system went out of our teams' development expirience of b2b services, so we needed a solution -->
 
 ## How it works?
 
 ...
+<!-- The idea of this system went out of our teams' development expirience of b2b services, so we needed a solution
+
+
+the the next workflow is concidered: 
+1. You integrate GASH into your project, define roles and actions that users with such roles are allowed to perform on objects with particular attributes in policy.
+2. When user appears in your project, their id and role are sended to GASH, where put into database.
+3.  -->
+ 
 
 ## Future Plans
 
-...
+- [ ] Implement client library
+- [ ] Optionaly return exceptions by RPC
+- [ ] Add API methods for updating policy in runtime
+- [ ] Implement HTTP API
+- [ ] Support other brockers, that are supported by [`FastStream`](https://faststream.airt.ai/latest/)
+- [ ] Extend policy with ABAC featues: permit/deny only if subject/object has/doesn't has attr, combinations of attrs, etc.
+- [ ] Extend policy with graph agnostic policyes like rules for any user, rules for all objects of this type, etc.
 
 ## Policy File Reference
 
