@@ -1,10 +1,10 @@
 # GraphDB Access Security Hub
 
 > [!CAUTION]
-> This project is still in very early stages of development. Use at your own risk.
+> This project is still in very early stages of development.
 
 > [!NOTE]
-> We are looking for contributors to help us with this project!!!
+> We are looking for contributors to help us with this project!
 
 
 GraphDB Access Security Hub (or just GASH) is an easy-to-use user authorization tool for microservices, based on [`Neo4j`](https://neo4j.com/docs/) database and minimalistic YAML policy config. It is build on top of modern technologies like [`Python 3.12`](https://www.python.org/), [`Pydantic 2+`](https://docs.pydantic.dev/latest/), [`FastStream 0.4+`](https://faststream.airt.ai/latest/) and [`pyneo4j-ogm 0.4+`](https://github.com/groc-prog/pyneo4j-ogm/blob/develop). GASH is currently a very young project, but we have ambicios plans for its future and are open to any feedback!
