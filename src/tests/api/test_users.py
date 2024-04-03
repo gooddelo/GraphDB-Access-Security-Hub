@@ -27,19 +27,17 @@ class TestUserAPI:
         indirect=True,
     )
     async def test_create_user(self, scope_nodes, resource_nodes):
-        scopes = [
-            ScopePropertiesDTO(id_=scope.id_, name=scope.attr) for scope in scope_nodes
-        ]
-        resources = [
-            ResourcePropertiesDTO(id_=resource.id_, type=resource.attr)
-            for resource in resource_nodes
-        ]
-        user_data = UserCreateDTO[ScopePropertiesDTO, ResourcePropertiesDTO](
-            id_=str(uuid.uuid4()),
-            role="admin",
-            resources=resources,
-            belong_scopes=scopes,
-        )
+        user_data = {
+            "id_": str(uuid.uuid4()),
+            "role": "admin",
+            "resources": [
+                {"id_": resource.id_, "type": resource.type}
+                for resource in resource_nodes
+            ],
+            "belong_scopes": [
+                {"id_": scope.id_, "name": scope.name} for scope in scope_nodes
+            ],
+        }
         async with TestRabbitBroker(broker) as test_brocker:
             result = await test_brocker.publish(
                 message=user_data,
@@ -47,7 +45,7 @@ class TestUserAPI:
                 exchange=GASH_EXCHANGE,
             )
         assert result is None
-        user = await User.find_one({"id_": user_data.id_, "attr": user_data.role})
+        user = await User.find_one({"id_": user_data["id_"], "attr": user_data["role"]})
         assert User is not None
         connected_belong_scopes = await user.belong_scopes.find_connected_nodes()
         connected_own_scopes = await user.own_scopes.find_connected_nodes()
@@ -59,11 +57,11 @@ class TestUserAPI:
     @pytest.mark.parametrize(
         "wrong_scopes,wrong_resources",
         (
-            ([ScopePropertiesDTO(id_=str(uuid.uuid4()), name="...")], []),  # type: ignore
-            ([], [ResourcePropertiesDTO(id_=str(uuid.uuid4()), type="...")]),  # type: ignore
+            ([{"id_": str(uuid.uuid4()), "name": "..."}], []),
+            ([], [{"id_": str(uuid.uuid4()), "type": "..."}]),
             (
-                [ScopePropertiesDTO(id_=str(uuid.uuid4()), name="...")],  # type: ignore
-                [ResourcePropertiesDTO(id_=str(uuid.uuid4()), type="...")],  # type: ignore
+                [{"id_": str(uuid.uuid4()), "name": "..."}],
+                [{"id_": str(uuid.uuid4()), "type": "..."}],
             ),
         ),
     )
@@ -74,6 +72,12 @@ class TestUserAPI:
             resources=wrong_resources,
             belong_scopes=wrong_scopes,
         )
+        user_data = {
+            "id_": str(uuid.uuid4()),
+            "role": "admin",
+            "resources": wrong_resources,
+            "belong_scopes": wrong_scopes,
+        }
         if wrong_scopes:
             with pytest.raises(ScopeNotFoundException):
                 async with TestRabbitBroker(broker) as test_brocker:
@@ -106,13 +110,13 @@ class TestUserAPI:
         for scope in old_belong_scopes:
             await user.belong_scopes.connect(scope)
             await user.own_scopes.connect(scope)
-        new_data = UserUpdateDTO[ScopePropertiesDTO, ResourcePropertiesDTO](
-            id_=user.id_,
-            old_role=user.role,
-            new_belong_scopes=[
-                ScopePropertiesDTO.model_validate(scope) for scope in new_belong_scopes
+        new_data = {
+            "id_": user.id_,
+            "old_role": user.role,
+            "new_belong_scopes": [
+                {"id_": scope.id_, "name": scope.name} for scope in new_belong_scopes
             ],
-        )
+        }
         async with TestRabbitBroker(broker) as test_brocker:
             result = await test_brocker.publish(
                 message=new_data,

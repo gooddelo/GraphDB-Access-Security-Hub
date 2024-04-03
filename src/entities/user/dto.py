@@ -12,8 +12,8 @@ ResourcePropertiesDTO = TypeVar("ResourcePropertiesDTO", bound=PropertiesDTO)
 class UserCreateDTO(DTO, Generic[ScopePropertiesDTO, ResourcePropertiesDTO]):
     id_: str
     role: str
-    resources: List[ResourcePropertiesDTO]
-    belong_scopes: List[ScopePropertiesDTO]
+    resources: List[ResourcePropertiesDTO] = Field(default_factory=list)
+    belong_scopes: List[ScopePropertiesDTO] = Field(default_factory=list)
 
 
 class UserUpdateDTO(DTO, Generic[ScopePropertiesDTO, ResourcePropertiesDTO]):

@@ -28,7 +28,7 @@ async def main():
             "name": "company",
             "owner": {
                 "id_": owner_data["id_"],
-                "attr": owner_data["role"],
+                "role": owner_data["role"],
             },
             "users": [],
             "scopes": [],
@@ -39,7 +39,7 @@ async def main():
             "name": "selling_point",
             "owner": {
                 "id_": owner_data["id_"],
-                "attr": owner_data["role"],
+                "role": owner_data["role"],
             },
             "users": [],
             "scopes": [],
@@ -62,7 +62,7 @@ async def main():
             "scopes": [
                 {
                     "id_": company_data["id_"],
-                    "attr": "company",
+                    "name": "company",
                 }
             ],   
         }
@@ -73,7 +73,7 @@ async def main():
             "belong_scopes": [
                 {
                     "id_": company_data["id_"],
-                    "attr": company_data["name"],
+                    "name": company_data["name"],
                 }
             ],
         }

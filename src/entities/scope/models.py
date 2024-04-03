@@ -35,7 +35,7 @@ class Scope(BaseNode):
     scopes: RelationshipProperty["Scope", Default] = RelationshipProperty(
         target_model="Scope",
         relationship_model=Default,
-        direction=RelationshipPropertyDirection.OUTGOING,
+        direction=RelationshipPropertyDirection.INCOMING,
         cardinality=RelationshipPropertyCardinality.ZERO_OR_MORE,
         allow_multiple=False,
     )
