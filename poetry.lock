@@ -339,13 +339,13 @@ test = ["coverage[toml] (>=7.2.0,<8.0.0)", "dirty-equals (>=0.7.0,<0.8)", "pytes
 
 [[package]]
 name = "faststream"
-version = "0.4.3"
+version = "0.4.5"
 description = "FastStream: the simplest way to work with a messaging queues"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "faststream-0.4.3-py3-none-any.whl", hash = "sha256:fd9e393f83c014118a29a24d45906ca1955eeed6023ed8f9fe158934cabe6d1c"},
-    {file = "faststream-0.4.3.tar.gz", hash = "sha256:744fc6195dd68cf84da7d2e77642ce8746e29563eb8cfe24dea3a2dd2e4e2f37"},
+    {file = "faststream-0.4.5-py3-none-any.whl", hash = "sha256:d714fd2a85ff73d47538095438b516b7a4c1fe9a07a4530f7f3a86721214389d"},
+    {file = "faststream-0.4.5.tar.gz", hash = "sha256:be998d1230d70245bbecffc370eae516e1259d4ad96b0975b651ac5c91583ace"},
 ]
 
 [package.dependencies]
@@ -358,15 +358,15 @@ typing-extensions = ">=4.8.0"
 [package.extras]
 confluent = ["confluent-kafka (>=2,<3)"]
 dev = ["detect-secrets (==1.4.0)", "faststream[confluent,devdocs,docs,kafka,lint,nats,rabbit,redis,testing]", "pre-commit (==3.5.0)", "pre-commit (==3.6.2)"]
-devdocs = ["black (==24.1.1)", "cairosvg (==2.7.1)", "mdx-include (==1.4.2)", "mike (==2.0.0)", "mkdocs-git-revision-date-localized-plugin (==1.2.2)", "mkdocs-glightbox (==0.3.7)", "mkdocs-literate-nav (==0.6.1)", "mkdocs-macros-plugin (==1.0.5)", "mkdocs-material (==9.5.10)", "mkdocs-minify-plugin (==0.7.2)", "mkdocs-static-i18n (==1.2.0)", "mkdocstrings[python] (==0.24.0)", "pillow (==10.2.0)", "requests"]
+devdocs = ["black (==24.1.1)", "cairosvg (==2.7.1)", "mdx-include (==1.4.2)", "mike (==2.0.0)", "mkdocs-git-revision-date-localized-plugin (==1.2.4)", "mkdocs-glightbox (==0.3.7)", "mkdocs-literate-nav (==0.6.1)", "mkdocs-macros-plugin (==1.0.5)", "mkdocs-material (==9.5.11)", "mkdocs-minify-plugin (==0.7.2)", "mkdocs-static-i18n (==1.2.0)", "mkdocstrings[python] (==0.24.0)", "pillow (==10.2.0)", "requests"]
 docs = ["fastapi (>=0.100.0,<1.0.0)", "uvicorn (>=0.17.0,<1.0.0)"]
 kafka = ["aiokafka (>=0.9,<0.11)"]
-lint = ["bandit (==1.7.6)", "confluent-kafka-stubs", "mypy (==1.8.0)", "ruff (==0.2.1)", "semgrep (==1.61.1)", "types-docutils", "types-pygments", "types-pyyaml", "types-redis", "types-setuptools", "types-ujson"]
+lint = ["bandit (==1.7.7)", "confluent-kafka-stubs", "mypy (==1.8.0)", "ruff (==0.2.1)", "semgrep (==1.62.0)", "types-docutils", "types-pygments", "types-pyyaml", "types-redis", "types-setuptools", "types-ujson"]
 nats = ["nats-py (>=2.3.1,<3.0.0)"]
 rabbit = ["aio-pika (>=9,<10)"]
 redis = ["redis (>=5.0.0,<6.0.0)"]
 test-core = ["coverage[toml] (==7.4.1)", "dirty-equals (==0.7.1.post0)", "pytest (==8.0.1)", "pytest-asyncio (==0.23.5)", "pytest-rerunfailures (==13.0)", "pytest-timeout (==2.2.0)"]
-testing = ["email-validator (==2.1.0.post1)", "fastapi (==0.109.2)", "faststream[test-core]", "httpx (==0.26.0)", "pydantic-settings (>=2.0.0,<3.0.0)", "pyyaml (==6.0.1)", "watchfiles (==0.21.0)"]
+testing = ["email-validator (==2.1.0.post1)", "fastapi (==0.109.2)", "faststream[test-core]", "httpx (==0.27.0)", "pydantic-settings (>=2.0.0,<3.0.0)", "pyyaml (==6.0.1)", "watchfiles (==0.21.0)"]
 
 [[package]]
 name = "idna"
@@ -1389,5 +1389,5 @@ multidict = ">=4.0"
 
 [metadata]
 lock-version = "2.0"
-python-versions = "^3.11"
-content-hash = "aa553347222d3164122d5ce31ee300001196e0a2624e3002645f4af7c58c1a6e"
+python-versions = "^3.12"
+content-hash = "b1b3d1b295eed5c3e0fdb010c0a511af7cd82f125c1a98a5cc8d80eb3ca76dd1"
