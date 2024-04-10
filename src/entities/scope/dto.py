@@ -20,7 +20,6 @@ class ScopePropertiesDTO(PropertiesDTO):
 class ScopeCreateDTO(DTO, Generic[UserPropertiesDTO, ResourcePropertiesDTO]):
     id_: str
     name: str
-    owner: UserPropertiesDTO
     users: List[UserPropertiesDTO] = Field(default_factory=list)
     scopes: List[ScopePropertiesDTO] = Field(default_factory=list)
     resources: List[ResourcePropertiesDTO] = Field(default_factory=list)
@@ -30,7 +29,6 @@ class ScopeUpdateDTO(DTO, Generic[UserPropertiesDTO, ResourcePropertiesDTO]):
     id_: str
     old_name: str
     new_name: str | None = None
-    new_owner: UserPropertiesDTO | None = None
     new_users: List[UserPropertiesDTO] | None = None
     new_scopes: List[ScopePropertiesDTO] | None = None
     new_resources: List[ResourcePropertiesDTO] | None = None

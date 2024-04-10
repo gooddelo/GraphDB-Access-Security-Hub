@@ -156,7 +156,8 @@ class TestUserDAL:
         selling_point = scope_nodes[1]
         company_resource = resource_nodes[0]
         selling_point_resource = resource_nodes[1]
-        await company.owner.connect(owner)
+        await company.users.connect(owner)
+        await owner.own_scopes.connect(company)
         await company.scopes.connect(selling_point)
         await company.resources.connect(company_resource)
         await selling_point.resources.connect(selling_point_resource)
@@ -189,7 +190,8 @@ class TestUserDAL:
         company_resource = resource_nodes[0]
         selling_point_resource = resource_nodes[1]
         personal_resource = resource_nodes[2]
-        await company.owner.connect(owner)
+        await company.users.connect(owner)
+        await owner.own_scopes.connect(company)
         await company.scopes.connect(selling_point)
         await company.resources.connect(company_resource)
         await selling_point.resources.connect(selling_point_resource)
@@ -223,7 +225,8 @@ class TestUserDAL:
         company_resource = resource_nodes[0]
         selling_point_resource = resource_nodes[1]
         personal_resource = resource_nodes[2]
-        await company.owner.connect(owner)
+        await company.users.connect(owner)
+        await owner.own_scopes.connect(company)
         await company.scopes.connect(selling_point)
         await company.resources.connect(company_resource)
         await selling_point.resources.connect(selling_point_resource)
@@ -261,7 +264,8 @@ class TestUserDAL:
         company_resource = resource_nodes[0]
         selling_point_resource = resource_nodes[1]
         personal_resource = resource_nodes[2]
-        await company.owner.connect(owner)
+        await company.users.connect(owner)
+        await owner.own_scopes.connect(company)
         await company.scopes.connect(selling_point)
         await company.resources.connect(company_resource)
         await selling_point.resources.connect(selling_point_resource)
@@ -299,7 +303,8 @@ class TestUserDAL:
         company_resource = resource_nodes[0]
         selling_point_resource = resource_nodes[1]
         personal_resource = resource_nodes[2]
-        await company.owner.connect(owner)
+        await company.users.connect(owner)
+        await owner.own_scopes.connect(company)
         await company.scopes.connect(selling_point)
         await company.resources.connect(company_resource)
         await selling_point.resources.connect(selling_point_resource)

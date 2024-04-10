@@ -16,8 +16,6 @@ class ScopeDAO(DAO):
     async def create(cls, data: ScopeCreateDTO):
         new = cls.node_type(id_=data.id_, attr=data.name)
         await new.create()
-        owner = await User.find_one(data.owner.model_dump())
-        await new.owner.connect(owner)
         for user in data.users:
             await new.users.connect(await User.find_one(user.model_dump()))
         for scope in data.scopes:
@@ -33,10 +31,6 @@ class ScopeDAO(DAO):
         if new_data.new_name is not None:
             scope.name = new_data.new_name
             await scope.update()
-        if new_data.new_owner is not None:
-            await scope.owner.disconnect_all()
-            owner = await User.find_one(new_data.new_owner.model_dump())
-            await scope.owner.connect(owner)
         if new_data.new_users is not None:
             old_users = {*(await scope.users.find_connected_nodes())}
             new_users = {

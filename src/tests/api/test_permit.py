@@ -37,7 +37,8 @@ class TestPermitAPI:
         owner, employee = user_nodes
         company, selling_point = scope_nodes
         company_resource, selling_point_resource, personal_resource = resource_nodes
-        await company.owner.connect(owner)
+        await company.users.connect(owner)
+        await owner.own_scopes.connect(company)
         await company.scopes.connect(selling_point)
         await company.resources.connect(company_resource)
         await selling_point.resources.connect(selling_point_resource)

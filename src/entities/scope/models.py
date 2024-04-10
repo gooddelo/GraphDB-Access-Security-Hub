@@ -18,13 +18,6 @@ class Scope(BaseNode):
     exists_exception = ScopeAlreadyExistException
     not_found_exception = ScopeNotFoundException
 
-    owner: RelationshipProperty["User", Default] = RelationshipProperty(
-        target_model="User",
-        relationship_model=Default,
-        direction=RelationshipPropertyDirection.INCOMING,
-        cardinality=RelationshipPropertyCardinality.ZERO_OR_ONE,
-        allow_multiple=False,
-    )
     users: RelationshipProperty[User, Default] = RelationshipProperty(
         target_model=User,
         relationship_model=Default,

@@ -29,7 +29,6 @@ class TestScopeDAL:
         scope_nodes,
         resource_nodes,
     ):
-        owner = UserPropertiesDTO.model_validate(user_nodes.pop())
         users = [UserPropertiesDTO.model_validate(user) for user in user_nodes]
         scopes = [ScopePropertiesDTO.model_validate(scope) for scope in scope_nodes]
         resources = [
@@ -40,7 +39,6 @@ class TestScopeDAL:
         data = ScopeCreateDTO[UserPropertiesDTO, ResourcePropertiesDTO](
             id_=str(uuid.uuid4()),
             name="company",
-            owner=owner,
             users=users,
             scopes=scopes,
             resources=resources,
@@ -48,8 +46,6 @@ class TestScopeDAL:
         await ScopeDAO.create(data)
         scopes_count = await Scope.count()
         scope = await Scope.find_one({"id_": data.id_, "attr": data.name})
-        connected_owners = await scope.owner.find_connected_nodes()
-        assert len(connected_owners) == 1
         assert scopes_count == 1 + len(scopes)
 
         connected_users = await scope.users.find_connected_nodes()
@@ -68,22 +64,6 @@ class TestScopeDAL:
         await ScopeDAO.update(new_data)
         await scope.refresh()
         assert scope.name == "name"
-
-    @pytest.mark.parametrize(
-        "scope_nodes,user_nodes",
-        (([uuid.uuid4()], [uuid.uuid4(), uuid.uuid4()]),),
-        indirect=True,
-    )
-    async def test_update_owner(self, scope_nodes, user_nodes):
-        scope = scope_nodes[0]
-        await scope.owner.connect(user_nodes[0])
-        new_data = ScopeUpdateDTO(
-            id_=scope.id_,
-            old_name=scope.name,
-            new_owner=UserPropertiesDTO.model_validate(user_nodes[1]),
-        )
-        await ScopeDAO.update(new_data)
-        assert await scope.owner.find_connected_nodes() == [user_nodes[1]]
 
     @pytest.mark.parametrize(
         "scope_nodes,user_nodes",
@@ -125,7 +105,10 @@ class TestScopeDAL:
         new_data = ScopeUpdateDTO(
             id_=scope.id_,
             old_name=scope.name,
-            new_resources=[ResourcePropertiesDTO.model_validate(resource) for resource in new_resources],
+            new_resources=[
+                ResourcePropertiesDTO.model_validate(resource)
+                for resource in new_resources
+            ],
         )
         await ScopeDAO.update(new_data)
         connected_resources = await scope.resources.find_connected_nodes()
@@ -148,7 +131,9 @@ class TestScopeDAL:
         new_data = ScopeUpdateDTO[UserPropertiesDTO, ResourcePropertiesDTO](
             id_=main_scope.id_,
             old_name=main_scope.name,
-            new_scopes=[ScopePropertiesDTO.model_validate(scope) for scope in new_scopes],
+            new_scopes=[
+                ScopePropertiesDTO.model_validate(scope) for scope in new_scopes
+            ],
         )
         await ScopeDAO.update(new_data)
         connected_scopes = await main_scope.scopes.find_connected_nodes()
@@ -160,7 +145,9 @@ class TestScopeDAL:
             ScopeNotFoundException,
             match=f"Scope {wrong_id} with name not_exist doesn't exist",
         ):
-            await ScopeDAO.update(ScopeUpdateDTO(id_=wrong_id, old_name="not_exist", new_name="new_name"))
+            await ScopeDAO.update(
+                ScopeUpdateDTO(id_=wrong_id, old_name="not_exist", new_name="new_name")
+            )
 
     @pytest.mark.parametrize("scope_nodes", ([uuid.uuid4()],), indirect=True)
     async def test_delete(self, scope_nodes):

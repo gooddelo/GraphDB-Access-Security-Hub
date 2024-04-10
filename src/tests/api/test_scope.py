@@ -7,9 +7,6 @@ from src.api.amqp.main import broker
 from src.config.amqp import GASH_EXCHANGE
 from src.api.amqp.v1.queues import ScopeQueuesV1
 from src.entities.scope.models import Scope
-from src.entities.scope.dto import ScopeUpdateDTO
-from src.entities.user.dto import UserPropertiesDTO
-from src.entities.resource.dto import ResourcePropertiesDTO
 
 
 @pytest.mark.asyncio
@@ -41,7 +38,6 @@ class TestScopeAPI:
         data = {
             "id_": str(uuid.uuid4()),
             "name": "company",
-            "owner": owner,
             "users": users,
             "scopes": scopes,
             "resources": resources,
@@ -55,8 +51,6 @@ class TestScopeAPI:
         assert result is None
         scopes_count = await Scope.count()
         scope = await Scope.find_one({"id_": data["id_"], "attr": data["name"]})
-        connected_owners = await scope.owner.find_connected_nodes()
-        assert len(connected_owners) == 1
         assert scopes_count == 1 + len(scopes)
 
         connected_users = await scope.users.find_connected_nodes()
