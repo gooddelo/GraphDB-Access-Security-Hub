@@ -20,7 +20,7 @@ class Scope(BaseNode):
     exists_exception = ScopeAlreadyExistException
     not_found_exception = ScopeNotFoundException
 
-    runtime_policy: Policy = Field(default_factory=dict)
+    policy: Policy = Field(default_factory=dict)
 
     @property
     def name(self) -> str:
@@ -51,4 +51,3 @@ class Scope(BaseNode):
         cardinality=RelationshipPropertyCardinality.ZERO_OR_MORE,
         allow_multiple=False,
     )
-

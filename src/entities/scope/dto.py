@@ -20,7 +20,7 @@ class ScopePropertiesDTO(PropertiesDTO):
 class ScopeCreateDTO(DTO, Generic[UserPropertiesDTO, ResourcePropertiesDTO]):
     id_: str
     name: str
-    runtime_policy: Policy = Field(default_factory=dict)
+    policy: Policy = Field(default_factory=dict)
     users: List[UserPropertiesDTO] = Field(default_factory=list)
     scopes: List[ScopePropertiesDTO] = Field(default_factory=list)
     resources: List[ResourcePropertiesDTO] = Field(default_factory=list)

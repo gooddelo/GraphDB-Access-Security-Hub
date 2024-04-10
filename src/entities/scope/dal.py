@@ -14,7 +14,7 @@ class ScopeDAO(DAO):
 
     @classmethod
     async def create(cls, data: ScopeCreateDTO):
-        new = cls.node_type(id_=data.id_, attr=data.name, runtime_policy=data.runtime_policy)
+        new = cls.node_type(id_=data.id_, attr=data.name, policy=data.policy)
         await new.create()
         for user in data.users:
             await new.users.connect(await User.find_one(user.model_dump()))
@@ -25,17 +25,20 @@ class ScopeDAO(DAO):
 
     @classmethod
     async def update(cls, new_data: ScopeUpdateDTO):
-        scope = await cls.node_type.find_one({"id_": new_data.id_, "attr": new_data.old_name})
+        scope = await cls.node_type.find_one(
+            {"id_": new_data.id_, "attr": new_data.old_name}
+        )
         if scope is None:
-            raise cls.node_type.not_found_exception(scope_id=new_data.id_, name=new_data.old_name)
+            raise cls.node_type.not_found_exception(
+                scope_id=new_data.id_, name=new_data.old_name
+            )
         if new_data.new_name is not None:
             scope.name = new_data.new_name
             await scope.update()
         if new_data.new_users is not None:
             old_users = {*(await scope.users.find_connected_nodes())}
             new_users = {
-                await User.find_one(user.model_dump())
-                for user in new_data.new_users
+                await User.find_one(user.model_dump()) for user in new_data.new_users
             }
             connect_users = new_users - old_users
             disconnect_users = old_users - new_users

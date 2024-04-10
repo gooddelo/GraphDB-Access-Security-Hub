@@ -60,13 +60,13 @@ class TestScopeDAL:
         data = ScopeCreateDTO[UserPropertiesDTO, ResourcePropertiesDTO](
             id_=str(uuid.uuid4()),
             name="company",
-            runtime_policy={"custom_role": {"custom_type": {"custom_action": ConditionsDTO()}}},
+            policy={"custom_role": {"custom_type": {"custom_action": ConditionsDTO()}}},
         )
         await ScopeDAO.create(data)
         scopes_count = await Scope.count()
         scope = await Scope.find_one({"id_": data.id_, "attr": data.name})
         assert scopes_count == 1
-        assert scope.runtime_policy == data.runtime_policy
+        assert scope.policy == data.policy
 
     @pytest.mark.parametrize("scope_nodes", ([uuid.uuid4()],), indirect=True)
     async def test_update_name(self, scope_nodes):
