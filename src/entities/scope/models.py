@@ -1,3 +1,4 @@
+from pydantic import Field
 from pyneo4j_ogm import (  # type: ignore
     RelationshipProperty,
     RelationshipPropertyDirection,
@@ -8,6 +9,7 @@ from src.entities.scope.exceptions import (
     ScopeNotFoundException,
     ScopeAlreadyExistException,
 )
+from src.entities.policy.models import Policy
 from src.entities.resource.models import Resource
 from src.entities.user.models import User
 from src.entities.base import BaseNode
@@ -17,6 +19,16 @@ from src.relationships import Default
 class Scope(BaseNode):
     exists_exception = ScopeAlreadyExistException
     not_found_exception = ScopeNotFoundException
+
+    runtime_policy: Policy = Field(default_factory=dict)
+
+    @property
+    def name(self) -> str:
+        return self.attr
+
+    @name.setter
+    def name(self, value: str):
+        self.attr = value
 
     users: RelationshipProperty[User, Default] = RelationshipProperty(
         target_model=User,
@@ -40,10 +52,3 @@ class Scope(BaseNode):
         allow_multiple=False,
     )
 
-    @property
-    def name(self) -> str:
-        return self.attr
-
-    @name.setter
-    def name(self, value: str):
-        self.attr = value

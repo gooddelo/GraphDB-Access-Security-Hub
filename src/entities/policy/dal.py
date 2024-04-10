@@ -1,11 +1,10 @@
 from pathlib import Path
 
-from typing import Dict
-
 import aiofiles
 import yaml
 
 from src.entities.policy.dto import ConditionsDTO
+from src.entities.policy.models import Policy
 from src.entities.policy.exceptions import (
     RoleNotConfiguredError,
     ActionNotConfiguredError,
@@ -15,7 +14,7 @@ POLICY_PATH = Path(__file__).parent.parent.parent.parent / "policy" / "policy.ym
 
 
 class PolicyDAO:
-    policy: Dict[str, Dict[str, Dict[str, ConditionsDTO]]] = {}
+    policy: Policy = {}
 
     @classmethod
     async def load(cls):

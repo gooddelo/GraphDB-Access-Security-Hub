@@ -7,6 +7,7 @@ from src.entities.scope.dto import ScopeCreateDTO, ScopePropertiesDTO, ScopeUpda
 from src.entities.scope.dal import ScopeDAO
 from src.entities.user.dto import UserPropertiesDTO
 from src.entities.resource.dto import ResourcePropertiesDTO
+from src.entities.policy.dto import ConditionsDTO
 from src.entities.scope.exceptions import ScopeNotFoundException
 
 
@@ -54,6 +55,18 @@ class TestScopeDAL:
         assert len(connected_users) == len(user_nodes)
         assert len(connected_scopes) == len(scopes)
         assert len(connected_resources) == len(resources)
+
+    async def test_create_with_policy(self):
+        data = ScopeCreateDTO[UserPropertiesDTO, ResourcePropertiesDTO](
+            id_=str(uuid.uuid4()),
+            name="company",
+            runtime_policy={"custom_role": {"custom_type": {"custom_action": ConditionsDTO()}}},
+        )
+        await ScopeDAO.create(data)
+        scopes_count = await Scope.count()
+        scope = await Scope.find_one({"id_": data.id_, "attr": data.name})
+        assert scopes_count == 1
+        assert scope.runtime_policy == data.runtime_policy
 
     @pytest.mark.parametrize("scope_nodes", ([uuid.uuid4()],), indirect=True)
     async def test_update_name(self, scope_nodes):

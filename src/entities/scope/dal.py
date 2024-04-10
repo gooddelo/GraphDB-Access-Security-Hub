@@ -14,7 +14,7 @@ class ScopeDAO(DAO):
 
     @classmethod
     async def create(cls, data: ScopeCreateDTO):
-        new = cls.node_type(id_=data.id_, attr=data.name)
+        new = cls.node_type(id_=data.id_, attr=data.name, runtime_policy=data.runtime_policy)
         await new.create()
         for user in data.users:
             await new.users.connect(await User.find_one(user.model_dump()))

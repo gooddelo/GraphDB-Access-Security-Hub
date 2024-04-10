@@ -3,7 +3,7 @@ from typing import List, TypeVar, Generic
 from pydantic import Field
 
 from src.entities.base import DTO, PropertiesDTO
-
+from src.entities.policy.models import Policy
 
 UserPropertiesDTO = TypeVar("UserPropertiesDTO", bound=PropertiesDTO)
 ResourcePropertiesDTO = TypeVar("ResourcePropertiesDTO", bound=PropertiesDTO)
@@ -20,6 +20,7 @@ class ScopePropertiesDTO(PropertiesDTO):
 class ScopeCreateDTO(DTO, Generic[UserPropertiesDTO, ResourcePropertiesDTO]):
     id_: str
     name: str
+    runtime_policy: Policy = Field(default_factory=dict)
     users: List[UserPropertiesDTO] = Field(default_factory=list)
     scopes: List[ScopePropertiesDTO] = Field(default_factory=list)
     resources: List[ResourcePropertiesDTO] = Field(default_factory=list)
