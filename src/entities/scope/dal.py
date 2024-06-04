@@ -35,6 +35,9 @@ class ScopeDAO(DAO):
         if new_data.new_name is not None:
             scope.name = new_data.new_name
             await scope.update()
+        if new_data.new_policy is not None:
+            scope.policy = new_data.new_policy
+            await scope.update()
         if new_data.new_users is not None:
             old_users = {*(await scope.users.find_connected_nodes())}
             new_users = {

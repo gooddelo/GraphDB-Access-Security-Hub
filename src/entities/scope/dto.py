@@ -30,6 +30,7 @@ class ScopeUpdateDTO(DTO, Generic[UserPropertiesDTO, ResourcePropertiesDTO]):
     id_: str
     old_name: str
     new_name: str | None = None
+    new_policy: Policy | None = None
     new_users: List[UserPropertiesDTO] | None = None
     new_scopes: List[ScopePropertiesDTO] | None = None
     new_resources: List[ResourcePropertiesDTO] | None = None

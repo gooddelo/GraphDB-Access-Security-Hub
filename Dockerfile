@@ -10,11 +10,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_DEFAULT_TIMEOUT=100 \
     POETRY_VERSION=1.7.0
 
-RUN apt-get update && \
-    apt-get install -y gcc libpq-dev && \
-    apt clean && \
-    rm -rf /var/cache/apt/* && \
-    pip install "poetry==$POETRY_VERSION"
+RUN pip install "poetry==$POETRY_VERSION"
 
 WORKDIR /gash/
 

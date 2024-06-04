@@ -78,6 +78,19 @@ class TestScopeDAL:
         await scope.refresh()
         assert scope.name == "name"
 
+    @pytest.mark.parametrize("scope_nodes", ([uuid.uuid4()],), indirect=True)
+    async def test_update_policy(self, scope_nodes):
+        scope = scope_nodes[0]
+        scope.policy = {"custom_role": {"custom_type": {"custom_action1": ConditionsDTO()}}}
+        await scope.update()
+        new_policy = {"custom_role": {"custom_type": {"custom_action2": ConditionsDTO()}}}
+        new_data = ScopeUpdateDTO[UserPropertiesDTO, ResourcePropertiesDTO](
+            id_=scope.id_, old_name=scope.name, new_policy=new_policy
+        )
+        await ScopeDAO.update(new_data)
+        await scope.refresh()
+        assert scope.policy == new_policy
+
     @pytest.mark.parametrize(
         "scope_nodes,user_nodes",
         (
