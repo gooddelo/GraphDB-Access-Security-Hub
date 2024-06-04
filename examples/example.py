@@ -10,7 +10,7 @@ from src.api.amqp.v1.queues import (
     UserQueuesV1,
     PermitQueuesV1,
 )
-
+AMQP_CONFIG.host = 'localhost'
 broker = RabbitBroker(AMQP_CONFIG.connection_url())
 broker.include_routers(api_router)
 

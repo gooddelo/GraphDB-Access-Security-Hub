@@ -12,12 +12,12 @@ scopes_v1 = RabbitRouter()
 
 
 @scopes_v1.subscriber(queue=ScopeQueuesV1.CREATE, exchange=GASH_EXCHANGE)
-async def create_scope(data: ScopeCreateDTO[UserPropertiesDTO, ResourcePropertiesDTO]):
+async def create_scope(data: ScopeCreateDTO):
     await ScopeService.create(data)
 
 
 @scopes_v1.subscriber(queue=ScopeQueuesV1.UPDATE, exchange=GASH_EXCHANGE)
-async def update_scope(data: ScopeUpdateDTO[UserPropertiesDTO, ResourcePropertiesDTO]):
+async def update_scope(data: ScopeUpdateDTO):
     await ScopeService.update(data)
 
 

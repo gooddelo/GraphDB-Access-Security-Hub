@@ -1,12 +1,10 @@
-from typing import List, TypeVar, Generic
+from typing import List
 
 from pydantic import Field
 
 from src.entities.base import DTO, PropertiesDTO
-
-
-UserPropertiesDTO = TypeVar("UserPropertiesDTO", bound=PropertiesDTO)
-ResourcePropertiesDTO = TypeVar("ResourcePropertiesDTO", bound=PropertiesDTO)
+from src.entities.user.dto import UserPropertiesDTO
+from src.entities.resource.dto import ResourcePropertiesDTO
 
 
 class ScopePropertiesDTO(PropertiesDTO):
@@ -17,7 +15,7 @@ class ScopePropertiesDTO(PropertiesDTO):
         return self.attr
 
 
-class ScopeCreateDTO(DTO, Generic[UserPropertiesDTO, ResourcePropertiesDTO]):
+class ScopeCreateDTO(DTO):
     id_: str
     name: str
     owner: UserPropertiesDTO
@@ -26,7 +24,7 @@ class ScopeCreateDTO(DTO, Generic[UserPropertiesDTO, ResourcePropertiesDTO]):
     resources: List[ResourcePropertiesDTO] = Field(default_factory=list)
 
 
-class ScopeUpdateDTO(DTO, Generic[UserPropertiesDTO, ResourcePropertiesDTO]):
+class ScopeUpdateDTO(DTO):
     id_: str
     old_name: str
     new_name: str | None = None
